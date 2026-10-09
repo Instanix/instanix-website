@@ -5,11 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --port 3000",
-    "build": "next build --webpack",
+    "build": "next build --webpack && node ../../scripts/self-contain-web.mjs --on-host-only",
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
-    "lint": "eslint src",
-    "build:host": "next build --webpack && node ../../scripts/self-contain-web.mjs"
+    "lint": "eslint src"
   },
   "dependencies": {
     "@ix/agents": "workspace:*",

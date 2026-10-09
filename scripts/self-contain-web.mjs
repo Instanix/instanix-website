@@ -6,15 +6,23 @@
 // `pnpm deploy` produces a real, production-only dependency tree for the app, and
 // this script swaps it in.
 //
-// Run from the repository root or from apps/web, AFTER `next build`. It is meant
-// for the host's build step, not for local development: afterwards the app folder
-// has production dependencies only.
+// It runs after `next build`. It is meant for the host's build step, not for local
+// development: afterwards the app folder has production dependencies only.
 import { execFileSync } from "node:child_process";
 import { existsSync, renameSync, rmSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+// With --on-host-only this is a no-op everywhere except the host's build, so the normal
+// `build` script can call it. The host is recognized by its build path (Hostinger builds
+// under .../hbuilds/...) or by IX_SELF_CONTAIN=1 for any other host that needs it.
+const onHost = process.env.IX_SELF_CONTAIN === "1" || root.split(path.sep).includes("hbuilds");
+if (process.argv.includes("--on-host-only") && !onHost) {
+  process.exit(0);
+}
+
 const app = path.join(root, "apps", "web");
 const staging = path.join(root, ".deploy-web");
 
