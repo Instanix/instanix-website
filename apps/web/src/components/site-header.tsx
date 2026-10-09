@@ -1,7 +1,6 @@
 import { otherLocale, type Dictionary, type Locale } from "@ix/i18n";
 import { buttonClass, Logo } from "@ix/ui";
 import { ThemeToggle } from "@ix/ui/client";
-import { Globe } from "lucide-react";
 import Link from "next/link";
 
 export function siteLinks(locale: Locale, t: Dictionary): readonly { href: string; label: string }[] {
@@ -14,6 +13,30 @@ export function siteLinks(locale: Locale, t: Dictionary): readonly { href: strin
     { href: `/${locale}/demo`, label: n.demo },
     { href: `/${locale}/platform`, label: n.platform },
   ];
+}
+
+/** UAE flag for Arabic, UK flag for English: the language the link switches to. */
+function Flag({ locale }: { readonly locale: Locale }) {
+  const frame = "h-4 w-6 shrink-0 overflow-hidden rounded-[3px] ring-1 ring-black/10";
+  if (locale === "ar") {
+    return (
+      <svg viewBox="0 0 24 16" aria-hidden="true" className={frame}>
+        <rect width="24" height="16" fill="#fff" />
+        <rect width="24" height="5.34" fill="#00732f" />
+        <rect y="10.66" width="24" height="5.34" fill="#000" />
+        <rect width="6" height="16" fill="#f00" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 60 40" aria-hidden="true" className={frame}>
+      <rect width="60" height="40" fill="#012169" />
+      <path d="M0 0 60 40M60 0 0 40" stroke="#fff" strokeWidth="8" />
+      <path d="M0 0 60 40M60 0 0 40" stroke="#c8102e" strokeWidth="3" />
+      <path d="M30 0v40M0 20h60" stroke="#fff" strokeWidth="13" />
+      <path d="M30 0v40M0 20h60" stroke="#c8102e" strokeWidth="7" />
+    </svg>
+  );
 }
 
 /** `path` is the current page without the locale prefix, so the language switch stays on the same page. */
@@ -48,7 +71,7 @@ export function SiteHeader({ locale, t, path = "" }: { readonly locale: Locale; 
             aria-label={t.common.switchLanguageLabel}
             className="ix-btn-glass inline-flex h-10 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold text-fg-soft transition-[border-color,background-color,color,transform] duration-300 hover:text-brand-text"
           >
-            <Globe className="size-4" aria-hidden="true" />
+            <Flag locale={other} />
             <span>{t.common.switchLanguage}</span>
           </Link>
           <ThemeToggle labels={{ useLight: t.common.useLightTheme, useDark: t.common.useDarkTheme }} />

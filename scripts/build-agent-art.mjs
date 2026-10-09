@@ -73,7 +73,7 @@ console.warn(`cover: ${cover.info.width}x${cover.info.height}, ${(cover.data.len
 
 // Official logo lockups, exactly as designed (never redrawn). Navy is for light surfaces,
 // white for dark ones; the mark is the bolt alone.
-const LOGOS = { "logo-navy": "InstanIX NAVY.png", "logo-white": "InstanIX WHITE.png", mark: "ICON.png" };
+const LOGOS = { "logo-navy": "InstanIX Lightning Tech Logo.png", "logo-white": "InstanIX WHITE.png", mark: "ICON.png" };
 for (const app of ["apps/web", "apps/command"]) {
   const dir = path.join(root, app, "public", "brand");
   await mkdir(dir, { recursive: true });

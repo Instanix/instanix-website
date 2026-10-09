@@ -1,82 +1,48 @@
 "use client";
 
-import { getAgent, type AgentKey } from "@ix/agents";
+import { getAgent } from "@ix/agents";
 import type { Dictionary } from "@ix/i18n";
-import { AgentAvatar, buttonClass } from "@ix/ui";
-import { Check, MessageCircle, Play, RotateCcw, ScrollText, Send, ShieldCheck, type LucideIcon } from "lucide-react";
+import { AgentAvatar, buttonClass, cn } from "@ix/ui";
+import { Check, Play, RotateCcw, ShieldCheck } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { FLOW_KEYS, FLOWS, flowNodeCopy, type FlowKey, type FlowNode, type FlowNodeCopy } from "@/lib/flows";
 import { prefersReducedMotion } from "./motion";
 
 type Copy = Dictionary["web"]["flow"];
-type NodeKey = keyof Copy["nodes"];
 
-interface FlowNode {
-  readonly key: NodeKey;
-  /** Center of the node on the canvas, in percent. */
-  readonly x: number;
-  readonly y: number;
-  /** The stage of the run in which this node works. */
-  readonly stage: number;
-  readonly agent?: AgentKey;
-  readonly icon?: LucideIcon;
-}
-
-const NODES: readonly FlowNode[] = [
-  { key: "trigger", x: 9, y: 50, stage: 0, icon: MessageCircle },
-  { key: "zeus", x: 25.5, y: 50, stage: 1, agent: "zeus" },
-  { key: "atlas", x: 42, y: 22, stage: 2, agent: "atlas" },
-  { key: "poseidon", x: 42, y: 78, stage: 2, agent: "poseidon" },
-  { key: "hermes", x: 58.5, y: 50, stage: 3, agent: "hermes" },
-  { key: "approval", x: 75, y: 50, stage: 4, icon: ShieldCheck },
-  { key: "send", x: 91, y: 22, stage: 5, icon: Send },
-  { key: "audit", x: 91, y: 78, stage: 5, icon: ScrollText },
-];
-
-const EDGES: readonly (readonly [NodeKey, NodeKey])[] = [
-  ["trigger", "zeus"],
-  ["zeus", "atlas"],
-  ["zeus", "poseidon"],
-  ["atlas", "hermes"],
-  ["poseidon", "hermes"],
-  ["hermes", "approval"],
-  ["approval", "send"],
-  ["approval", "audit"],
-];
-
-/** The run pauses here until a person approves. */
-const APPROVAL_STAGE = 4;
-const LAST_STAGE = 5;
-/** Log lines shown once each stage starts; the indexes point into `copy.log`. */
-const STAGE_LOG: readonly (readonly number[])[] = [[0], [1], [2, 3], [4], [5], [6, 7]];
-/** Who each log line belongs to. */
-const LOG_AGENT: readonly (AgentKey | null)[] = [null, "zeus", "atlas", "poseidon", "hermes", null, null, null];
 const STEP_MS = 1400;
 
-const node = (key: NodeKey): FlowNode => {
-  const found = NODES.find((n) => n.key === key);
-  if (!found) throw new Error(`Unknown flow node: ${key}`);
-  return found;
-};
-
-/** -1 = not started, 0..LAST_STAGE = that stage is working, LAST_STAGE + 1 = finished. */
+/** -1 = not started, 0..last = that stage is working, last + 1 = finished. */
 type Stage = number;
 
-function stateOf(n: FlowNode, stage: Stage): "idle" | "active" | "done" {
-  if (stage > n.stage) return "done";
-  return stage === n.stage ? "active" : "idle";
+function stateOf(node: FlowNode, stage: Stage): "idle" | "active" | "done" {
+  if (stage > node.stage) return "done";
+  return stage === node.stage ? "active" : "idle";
 }
 
-function NodeTile({ n, copy, stage }: { readonly n: FlowNode; readonly copy: Copy; readonly stage: Stage }) {
-  const state = stateOf(n, stage);
-  const agent = n.agent ? getAgent(n.agent) : null;
-  const Icon = n.icon;
-  const waiting = n.key === "approval" && state === "active";
+function NodeTile({
+  node,
+  text,
+  stage,
+  waiting,
+}: {
+  readonly node: FlowNode;
+  readonly text: FlowNodeCopy;
+  readonly stage: Stage;
+  /** This node is the approval gate and the run is paused on it. */
+  readonly waiting: boolean;
+}) {
+  const state = stateOf(node, stage);
+  const agent = node.agent ? getAgent(node.agent) : null;
+  const Icon = node.icon;
   return (
     <div
       style={{ "--ring": waiting ? "var(--ix-warning)" : (agent?.accent ?? "var(--ix-brand)") } as CSSProperties}
-      className={`relative flex w-full items-center gap-2 rounded-2xl border bg-surface p-2 text-start shadow-ix transition-[border-color,opacity,transform] duration-500 ${
-        state === "idle" ? "border-line opacity-55" : "border-[var(--ring)]"
-      } ${state === "active" ? "ix-node-active scale-[1.04]" : ""}`}
+      className={cn(
+        "relative flex w-full items-center gap-2 rounded-2xl border bg-surface p-2 text-start shadow-ix transition-[border-color,opacity,transform] duration-500",
+        state === "idle" ? "border-line opacity-55" : "border-[var(--ring)]",
+        state === "active" && "ix-node-active scale-[1.04]",
+      )}
     >
       {agent ? (
         <AgentAvatar agent={agent} size="sm" className="size-9" />
@@ -87,9 +53,9 @@ function NodeTile({ n, copy, stage }: { readonly n: FlowNode; readonly copy: Cop
       )}
       <span className="min-w-0 flex-1 leading-tight">
         <span className="block truncate text-[0.65rem] font-bold tracking-wider text-muted uppercase">
-          {agent ? <span dir="ltr">{agent.name}</span> : copy.nodes[n.key].sub}
+          {agent ? <span dir="ltr">{agent.name}</span> : text.sub}
         </span>
-        <span className="block text-[0.8rem] leading-tight font-bold text-balance">{copy.nodes[n.key].title}</span>
+        <span className="block text-[0.8rem] leading-tight font-bold text-balance">{text.title}</span>
       </span>
       {state === "done" ? (
         <span className="absolute -end-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-success text-white shadow-ix-sm">
@@ -100,18 +66,28 @@ function NodeTile({ n, copy, stage }: { readonly n: FlowNode; readonly copy: Cop
   );
 }
 
-/** An n8n-style canvas that runs one customer message through the team, pausing for approval. */
+/**
+ * A workflow canvas that runs a sample job through the team, step by step. Each scenario
+ * is a different business; the sales one pauses at a human approval gate.
+ */
 export function FlowCanvas({ copy }: { readonly copy: Copy }) {
+  const [flow, setFlow] = useState<FlowKey>(FLOW_KEYS[0] ?? "sales");
   const [stage, setStage] = useState<Stage>(-1);
   const rootRef = useRef<HTMLDivElement>(null);
   const started = useRef(false);
 
-  // Advance on a timer, except at the approval gate, which waits for the visitor.
+  const definition = FLOWS[flow];
+  const scenario = copy.scenarios[flow];
+  const nodeCopy = flowNodeCopy(copy, flow);
+  const lastStage = definition.stageLog.length - 1;
+  const approvalStage = definition.approvalStage;
+
+  // Advance on a timer, except at an approval gate, which waits for the visitor.
   useEffect(() => {
-    if (stage < 0 || stage > LAST_STAGE || stage === APPROVAL_STAGE) return;
+    if (stage < 0 || stage > lastStage || stage === approvalStage) return;
     const timer = setTimeout(() => setStage((s) => s + 1), STEP_MS);
     return () => clearTimeout(timer);
-  }, [stage]);
+  }, [stage, lastStage, approvalStage]);
 
   // Start once when the canvas scrolls into view.
   useEffect(() => {
@@ -135,106 +111,140 @@ export function FlowCanvas({ copy }: { readonly copy: Copy }) {
     started.current = true;
     setStage(0);
   };
+  const choose = (key: FlowKey) => {
+    started.current = true;
+    setFlow(key);
+    setStage(0);
+  };
 
-  const waiting = stage === APPROVAL_STAGE;
-  const finished = stage > LAST_STAGE;
+  const waiting = stage === approvalStage;
+  const finished = stage > lastStage;
   const status = stage < 0 ? copy.status.idle : waiting ? copy.status.waiting : finished ? copy.status.done : copy.status.running;
-  const lines = STAGE_LOG.slice(0, Math.max(0, Math.min(stage, LAST_STAGE) + 1)).flat();
+  const lines = definition.stageLog.slice(0, Math.max(0, Math.min(stage, lastStage) + 1)).flat();
+  const find = (key: string) => definition.nodes.find((n) => n.key === key);
 
   return (
-    <div ref={rootRef} className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
-      <div className="ix-glass-strong relative overflow-hidden rounded-ix-lg">
-        <div className="flex items-center justify-between gap-3 border-b border-line/70 px-4 py-3">
-          <p className="flex items-center gap-2 text-xs font-bold text-fg-soft">
-            <span
-              className={`size-2 rounded-full ${waiting ? "bg-warning" : finished ? "bg-success" : stage < 0 ? "bg-muted" : "ix-anim-pulse bg-brand"}`}
-            />
-            <span aria-live="polite">{status}</span>
-          </p>
-          <button type="button" onClick={run} className={buttonClass("secondary", "sm")}>
-            {stage < 0 ? <Play className="size-4 rtl:rotate-180" aria-hidden="true" /> : <RotateCcw className="size-4" aria-hidden="true" />}
-            {stage < 0 ? copy.play : copy.replay}
+    <div ref={rootRef} className="space-y-4">
+      <div role="group" aria-label={copy.scenarioLabel} className="flex flex-wrap gap-2">
+        {FLOW_KEYS.map((key) => (
+          <button
+            key={key}
+            type="button"
+            aria-pressed={key === flow}
+            onClick={() => choose(key)}
+            className={buttonClass(key === flow ? "primary" : "secondary", "sm", "h-10")}
+          >
+            {copy.scenarios[key].name}
           </button>
-        </div>
-
-        {/* Large screens: the canvas. Positions use logical offsets, so the flow runs right to left in Arabic. */}
-        <div className="ix-dots relative hidden aspect-[1000/420] lg:block">
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" className="absolute inset-0 size-full rtl:-scale-x-100">
-            {EDGES.map(([from, to]) => {
-              const a = node(from);
-              const b = node(to);
-              const mid = (a.x + b.x) / 2;
-              const d = `M ${a.x} ${a.y} C ${mid} ${a.y}, ${mid} ${b.y}, ${b.x} ${b.y}`;
-              const state = stateOf(b, stage);
-              return (
-                <g key={`${from}-${to}`} fill="none" strokeWidth="2" vectorEffect="non-scaling-stroke">
-                  <path d={d} stroke="var(--ix-line-strong)" vectorEffect="non-scaling-stroke" />
-                  {state === "idle" ? null : (
-                    <path
-                      key={stage < 0 ? "idle" : `run-${b.stage}`}
-                      d={d}
-                      pathLength={1}
-                      stroke="var(--ix-brand)"
-                      strokeLinecap="round"
-                      vectorEffect="non-scaling-stroke"
-                      className="ix-edge-run"
-                    />
-                  )}
-                </g>
-              );
-            })}
-          </svg>
-          {NODES.map((n) => (
-            <div
-              key={n.key}
-              className="absolute w-[15%] -translate-x-1/2 -translate-y-1/2 rtl:translate-x-1/2"
-              style={{ insetInlineStart: `${n.x}%`, top: `${n.y}%` }}
-            >
-              <NodeTile n={n} copy={copy} stage={stage} />
-            </div>
-          ))}
-        </div>
-
-        {/* Small screens: the same run as a vertical list. */}
-        <ol className="space-y-2 p-4 lg:hidden">
-          {NODES.map((n) => (
-            <li key={n.key}>
-              <NodeTile n={n} copy={copy} stage={stage} />
-            </li>
-          ))}
-        </ol>
+        ))}
       </div>
 
-      <div className="ix-glass flex min-h-64 flex-col rounded-ix-lg p-4">
-        <p className="text-xs font-extrabold tracking-widest text-muted uppercase">{copy.logTitle}</p>
-        {lines.length === 0 ? (
-          <p className="m-auto text-center text-sm text-muted">{copy.logEmpty}</p>
-        ) : (
-          <ol className="mt-3 flex-1 space-y-2.5">
-            {lines.map((index) => {
-              const key = LOG_AGENT[index];
-              return (
-                <li key={index} className="ix-anim-in flex items-start gap-2.5 text-sm text-fg-soft">
-                  {key ? (
-                    <AgentAvatar agent={getAgent(key)} size="xs" className="mt-0.5" />
-                  ) : (
-                    <span className="mt-1.5 size-2 shrink-0 rounded-full bg-brand ms-2 me-2" />
-                  )}
-                  <span>{copy.log[index]}</span>
-                </li>
-              );
-            })}
-          </ol>
-        )}
-        {waiting ? (
-          <div className="ix-anim-in mt-4 space-y-2 rounded-2xl border border-warning/50 bg-[color-mix(in_srgb,var(--ix-warning)_10%,transparent)] p-3">
-            <p className="text-xs font-semibold text-fg-soft">{copy.approvalHint}</p>
-            <button type="button" onClick={() => setStage(LAST_STAGE)} className={buttonClass("primary", "sm", "w-full")}>
-              <ShieldCheck className="size-4" aria-hidden="true" />
-              {copy.approve}
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="ix-glass-strong relative overflow-hidden rounded-ix-lg">
+          <div className="flex items-center justify-between gap-3 border-b border-line/70 px-4 py-3">
+            <p className="flex items-center gap-2 text-xs font-bold text-fg-soft">
+              <span
+                className={cn(
+                  "size-2 rounded-full",
+                  waiting ? "bg-warning" : finished ? "bg-success" : stage < 0 ? "bg-muted" : "ix-anim-pulse bg-brand",
+                )}
+              />
+              <span aria-live="polite">{status}</span>
+            </p>
+            <button type="button" onClick={run} className={buttonClass("secondary", "sm")}>
+              {stage < 0 ? <Play className="size-4 rtl:rotate-180" aria-hidden="true" /> : <RotateCcw className="size-4" aria-hidden="true" />}
+              {stage < 0 ? copy.play : copy.replay}
             </button>
           </div>
-        ) : null}
+
+          {/* Large screens: the canvas. Positions use logical offsets, so the flow runs right to left in Arabic. */}
+          <div className="ix-dots relative hidden aspect-[1000/420] lg:block">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" className="absolute inset-0 size-full rtl:-scale-x-100">
+              {definition.edges.map(([from, to]) => {
+                const a = find(from);
+                const b = find(to);
+                if (!a || !b) return null;
+                const mid = (a.x + b.x) / 2;
+                const d = `M ${a.x} ${a.y} C ${mid} ${a.y}, ${mid} ${b.y}, ${b.x} ${b.y}`;
+                return (
+                  <g key={`${flow}-${from}-${to}`} fill="none" strokeWidth="2">
+                    <path d={d} stroke="var(--ix-line-strong)" vectorEffect="non-scaling-stroke" />
+                    {stateOf(b, stage) === "idle" ? null : (
+                      <path
+                        d={d}
+                        pathLength={1}
+                        stroke="var(--ix-brand)"
+                        strokeLinecap="round"
+                        vectorEffect="non-scaling-stroke"
+                        className="ix-edge-run"
+                      />
+                    )}
+                  </g>
+                );
+              })}
+            </svg>
+            {definition.nodes.map((node) => (
+              <div
+                key={`${flow}-${node.key}`}
+                className="absolute w-[15%] -translate-x-1/2 -translate-y-1/2 rtl:translate-x-1/2"
+                style={{ insetInlineStart: `${node.x}%`, top: `${node.y}%` }}
+              >
+                <NodeTile
+                  node={node}
+                  text={nodeCopy[node.key] ?? { title: node.key, sub: "" }}
+                  stage={stage}
+                  waiting={waiting && node.stage === approvalStage}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Small screens: the same run as a vertical list. */}
+          <ol className="space-y-2 p-4 lg:hidden">
+            {definition.nodes.map((node) => (
+              <li key={`${flow}-${node.key}`}>
+                <NodeTile
+                  node={node}
+                  text={nodeCopy[node.key] ?? { title: node.key, sub: "" }}
+                  stage={stage}
+                  waiting={waiting && node.stage === approvalStage}
+                />
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div className="ix-glass flex min-h-64 flex-col rounded-ix-lg p-4">
+          <p className="text-xs font-extrabold tracking-widest text-muted uppercase">{copy.logTitle}</p>
+          {lines.length === 0 ? (
+            <p className="m-auto text-center text-sm text-muted">{copy.logEmpty}</p>
+          ) : (
+            <ol className="mt-3 flex-1 space-y-2.5">
+              {lines.map((index) => {
+                const agent = definition.logAgents[index];
+                return (
+                  <li key={`${flow}-${index}`} className="ix-anim-in flex items-start gap-2.5 text-sm text-fg-soft">
+                    {agent ? (
+                      <AgentAvatar agent={getAgent(agent)} size="xs" className="mt-0.5" />
+                    ) : (
+                      <span className="mx-2 mt-1.5 size-2 shrink-0 rounded-full bg-brand" />
+                    )}
+                    <span>{scenario.log[index]}</span>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+          {waiting ? (
+            <div className="ix-anim-in mt-4 space-y-2 rounded-2xl border border-warning/50 bg-[color-mix(in_srgb,var(--ix-warning)_10%,transparent)] p-3">
+              <p className="text-xs font-semibold text-fg-soft">{copy.approvalHint}</p>
+              <button type="button" onClick={() => setStage((s) => s + 1)} className={buttonClass("primary", "sm", "w-full")}>
+                <ShieldCheck className="size-4" aria-hidden="true" />
+                {copy.approve}
+              </button>
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );

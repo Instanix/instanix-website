@@ -595,3 +595,40 @@ html[lang="ar"] :is(h1, h2, h3, h4):not([dir="ltr"]) {
     transform: none;
   }
 }
+
+/* Demo handset: a titanium frame with side buttons. */
+.ix-phone {
+  position: relative;
+  padding: 0.6rem;
+  border-radius: 3.4rem;
+  background: linear-gradient(145deg, #9a9da3, #34363b 28%, #7b7e85 55%, #1d1e22 82%, #5a5d63);
+  box-shadow:
+    inset 0 0 0 1.5px rgb(255 255 255 / 0.28),
+    inset 0 0 0 5px #0a0b0d,
+    0 50px 90px -40px rgb(6 23 58 / 0.6),
+    0 20px 40px -24px color-mix(in srgb, var(--ix-brand) 55%, transparent);
+}
+.ix-phone::before,
+.ix-phone::after {
+  content: "";
+  position: absolute;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #7b7e85, #2a2b2f);
+}
+.ix-phone::before {
+  left: -3px;
+  top: 9.5rem;
+  height: 6.5rem;
+  box-shadow: 0 -4.2rem 0 -0.5px #55585e;
+}
+.ix-phone::after {
+  right: -3px;
+  top: 12rem;
+  height: 5.5rem;
+}
+.ix-chat-wall {
+  background:
+    radial-gradient(color-mix(in srgb, var(--ix-fg) 7%, transparent) 1px, transparent 1px) 0 0 / 18px 18px,
+    var(--ix-surface-2);
+}

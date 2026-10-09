@@ -11,11 +11,13 @@ import { DemoSection, IndustryCards } from "@/components/sections";
 import { Intro, Section, SiteChrome } from "@/components/site-chrome";
 import { TeamShowcase } from "@/components/team-showcase";
 import { FEATURED_TOOLS, GOALS } from "@/lib/catalog";
+import { assertFlows } from "@/lib/flows";
 import { loadPage, type LocaleParams } from "@/lib/page";
 
 export default async function HomePage({ params }: LocaleParams) {
   const { locale, t } = await loadPage(params);
   const w = t.web;
+  assertFlows(w.flow);
 
   const goals: BuildGoal[] = GOALS.map(({ key, agents }) => ({
     key,

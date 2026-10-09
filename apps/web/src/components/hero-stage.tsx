@@ -15,14 +15,19 @@ export const ASSESSMENT_DRAFT_KEY = "ix-assessment-draft";
  * The cast on stage, front to back. `x` is the offset from center in percent of the
  * stage width, `size` the height relative to ZEUS, `depth` how far it moves with the pointer.
  */
-const CAST: readonly { key: AgentKey; x: number; size: number; depth: number }[] = [
+const CAST: readonly { key: AgentKey; x: number; size: number; depth: number; back?: boolean }[] = [
   { key: "zeus", x: 0, size: 1, depth: 1 },
-  { key: "athena", x: -15, size: 0.86, depth: 0.7 },
-  { key: "hephaestus", x: 15, size: 0.86, depth: 0.7 },
-  { key: "hermes", x: -28, size: 0.74, depth: 0.45 },
-  { key: "atlas", x: 28, size: 0.74, depth: 0.45 },
-  { key: "poseidon", x: -39.5, size: 0.64, depth: 0.25 },
-  { key: "ares", x: 39.5, size: 0.64, depth: 0.25 },
+  { key: "athena", x: -14, size: 0.87, depth: 0.72 },
+  { key: "hephaestus", x: 14, size: 0.87, depth: 0.72 },
+  { key: "hermes", x: -26.5, size: 0.76, depth: 0.5 },
+  { key: "atlas", x: 26.5, size: 0.76, depth: 0.5 },
+  { key: "poseidon", x: -37.5, size: 0.66, depth: 0.32 },
+  { key: "ares", x: 37.5, size: 0.66, depth: 0.32 },
+  { key: "apollo", x: -7.5, size: 0.8, depth: 0.2, back: true },
+  { key: "midas", x: 7.5, size: 0.8, depth: 0.2, back: true },
+  { key: "themis", x: -20.5, size: 0.7, depth: 0.16, back: true },
+  { key: "oracle", x: 20.5, size: 0.7, depth: 0.16, back: true },
+  { key: "hestia", x: -46, size: 0.56, depth: 0.12, back: true },
 ];
 
 export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: Dictionary }) {
@@ -144,19 +149,19 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
       {/* The characters never mirror in RTL: they carry their serial IDs. */}
       <div dir="ltr" aria-hidden="true" className="relative mx-auto mt-8 h-[21rem] max-w-6xl sm:h-[30rem] lg:h-[38rem]">
         <div className="ix-stage-floor absolute inset-x-[-10%] bottom-[-6%] h-[70%]" />
-        {CAST.map(({ key, x, size, depth }, index) => {
+        {CAST.map(({ key, x, size, depth, back }, index) => {
           const agent = getAgent(key);
           return (
             <div
               key={key}
-              className="ix-rise absolute bottom-0 left-1/2 will-change-transform"
+              className={`ix-rise absolute bottom-0 left-1/2 will-change-transform ${back ? "hidden md:block" : ""}`}
               style={
                 {
                   "--d": `${0.3 + index * 0.07}s`,
                   "--agent": agent.accent,
                   height: `${size * 100}%`,
                   marginLeft: `${x}%`,
-                  zIndex: Math.round(size * 10),
+                  zIndex: Math.round(size * 10) - (back ? 6 : 0),
                 } as CSSProperties
               }
             >
@@ -175,7 +180,7 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
                   decoding="async"
                   fetchPriority={key === "zeus" ? "high" : "auto"}
                   className="relative h-full w-auto max-w-none object-contain drop-shadow-[0_26px_32px_rgb(6_23_58/0.32)]"
-                  style={{ filter: size < 1 ? `saturate(${0.75 + size * 0.25}) brightness(${0.86 + size * 0.14})` : undefined }}
+                  style={{ filter: back ? "saturate(0.7) brightness(0.82)" : size < 1 ? `saturate(${0.75 + size * 0.25}) brightness(${0.86 + size * 0.14})` : undefined }}
                 />
               </div>
             </div>

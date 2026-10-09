@@ -3,7 +3,7 @@
 import { getAgent } from "@ix/agents";
 import type { Dictionary } from "@ix/i18n";
 import { AgentAvatar, buttonClass, cn } from "@ix/ui";
-import { Check, CheckCheck, Play, RotateCcw } from "lucide-react";
+import { BatteryFull, Check, CheckCheck, ChevronLeft, Mic, Phone, Play, Plus, RotateCcw, Signal, Video, Wifi } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { DEMO_SCENARIOS, DEMO_SCRIPTS, type CrmField, type DemoStep } from "@/lib/demo-script";
 import type { DemoScenarioKey } from "@/lib/industries";
@@ -81,42 +81,57 @@ export function LiveDemo({
   const typing = playing && next?.kind === "agent";
 
   return (
-    <div className="space-y-5">
-      {scenarios.length > 1 ? (
-        <div role="group" aria-label={copy.scenarioLabel} className="flex flex-wrap gap-2">
-          {scenarios.map((key) => (
-            <button
-              key={key}
-              type="button"
-              aria-pressed={key === scenario}
-              onClick={() => choose(key)}
-              className={cn(
-                "rounded-full px-4 py-2 text-sm font-bold transition-colors",
-                key === scenario ? "bg-primary text-on-primary shadow-ix-glow" : "ix-glass text-fg-soft hover:text-fg",
-              )}
-            >
-              {copy.scenarios[key].name}
-            </button>
-          ))}
-        </div>
-      ) : null}
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center gap-2">
+        {scenarios.length > 1 ? (
+          <div role="group" aria-label={copy.scenarioLabel} className="flex flex-wrap gap-2">
+            {scenarios.map((key) => (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={key === scenario}
+                onClick={() => choose(key)}
+                className={buttonClass(key === scenario ? "primary" : "secondary", "sm", "h-10")}
+              >
+                {copy.scenarios[key].name}
+              </button>
+            ))}
+          </div>
+        ) : null}
+        <button type="button" onClick={play} disabled={playing && !finished} className={buttonClass("secondary", "sm", "ms-auto h-10")}>
+          {finished ? <RotateCcw className="size-4" aria-hidden="true" /> : <Play className="size-4 rtl:rotate-180" aria-hidden="true" />}
+          {finished ? copy.replay : copy.play}
+        </button>
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-[22rem_1fr] lg:items-start">
-        {/* Phone */}
-        <div className="mx-auto w-full max-w-[22rem] rounded-[2.6rem] bg-[#0b1220] p-2.5 shadow-ix-lg ring-1 ring-white/10">
-          <div className="flex h-[34rem] flex-col overflow-hidden rounded-[2.1rem] bg-surface">
-            <div className="flex items-center gap-3 bg-[#0d5c4f] px-4 py-3 text-white">
-              <span dir="ltr" className="grid size-10 shrink-0 place-items-center rounded-full bg-white/15 text-sm font-extrabold">
-                {copy.scenarios[scenario].business.charAt(0)}
+      <div className="grid gap-8 lg:grid-cols-[23rem_1fr] lg:items-center">
+        {/* Phone: a titanium-frame handset. The chat avatar is the Instanix mark. */}
+        <div className="ix-phone mx-auto w-full max-w-[21.5rem]">
+          <div className="relative flex h-[41rem] flex-col overflow-hidden rounded-[2.85rem] bg-surface">
+            <div dir="ltr" aria-hidden="true" className="relative flex h-12 shrink-0 items-end justify-between px-7 pb-1.5 text-[0.8rem] font-semibold text-fg">
+              <span>9:41</span>
+              <span className="absolute inset-x-0 top-2.5 mx-auto h-7 w-28 rounded-full bg-black" />
+              <span className="flex items-center gap-1.5">
+                <Signal className="size-3.5" />
+                <Wifi className="size-3.5" />
+                <BatteryFull className="size-5" />
               </span>
-              <div className="min-w-0">
+            </div>
+            <div className="flex shrink-0 items-center gap-2.5 border-b border-line bg-surface px-3 pb-2.5">
+              <ChevronLeft className="size-6 shrink-0 text-brand-text rtl:rotate-180" aria-hidden="true" />
+              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white shadow-ix-sm ring-1 ring-line">
+                <img src="/brand/mark.webp" alt="" width={223} height={256} className="h-6 w-auto" />
+              </span>
+              <div className="min-w-0 flex-1">
                 <p dir="ltr" className="truncate text-start text-sm font-bold rtl:text-end">
                   {copy.scenarios[scenario].business}
                 </p>
-                <p className="text-xs text-white/75">{typing ? copy.typing : copy.online}</p>
+                <p className="truncate text-xs text-muted">{typing ? copy.typing : copy.online}</p>
               </div>
+              <Video className="size-5 shrink-0 text-brand-text" aria-hidden="true" />
+              <Phone className="size-5 shrink-0 text-brand-text" aria-hidden="true" />
             </div>
-            <div ref={chatRef} aria-live="polite" className="flex-1 space-y-2.5 overflow-y-auto bg-surface-2 p-3">
+            <div ref={chatRef} data-lenis-prevent aria-live="polite" className="ix-chat-wall flex-1 space-y-2.5 overflow-y-auto p-3">
               {messages.map(({ step, text, index }) => {
                 const mine = step.kind === "customer";
                 return (
@@ -143,18 +158,20 @@ export function LiveDemo({
                 </div>
               ) : null}
             </div>
-            <div className="border-t border-line bg-surface p-3">
-              <button type="button" onClick={play} disabled={playing && !finished} className={buttonClass("primary", "md", "w-full")}>
-                {finished ? <RotateCcw className="size-4" aria-hidden="true" /> : <Play className="size-4 rtl:rotate-180" aria-hidden="true" />}
-                {finished ? copy.replay : copy.play}
-              </button>
+            <div aria-hidden="true" className="shrink-0 bg-surface px-3 pt-2 pb-1.5">
+              <div className="flex items-center gap-2">
+                <Plus className="size-6 shrink-0 text-brand-text" />
+                <span className="h-9 flex-1 rounded-full border border-line bg-surface-2" />
+                <Mic className="size-5 shrink-0 text-brand-text" />
+              </div>
+              <span className="mx-auto mt-2.5 block h-1 w-32 rounded-full bg-fg/80" />
             </div>
           </div>
         </div>
 
         {/* Behind the scenes */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-          <div className="rounded-ix border border-line bg-surface p-5 shadow-ix">
+          <div className="ix-glass-strong rounded-ix-lg p-5">
             <h3 className="text-sm font-extrabold tracking-widest text-fg-soft uppercase">{copy.crmTitle}</h3>
             <dl className="mt-4 space-y-3">
               {CRM_FIELDS.map((field) => {
@@ -174,7 +191,7 @@ export function LiveDemo({
             </dl>
           </div>
 
-          <div className="rounded-ix border border-line bg-surface p-5 shadow-ix">
+          <div className="ix-glass-strong rounded-ix-lg p-5">
             <h3 className="text-sm font-extrabold tracking-widest text-fg-soft uppercase">{copy.activityTitle}</h3>
             {events.length === 0 ? (
               <p className="mt-4 text-sm text-muted">{copy.activityEmpty}</p>

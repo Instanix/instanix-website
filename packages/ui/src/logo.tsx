@@ -29,7 +29,7 @@ export function Logo({ variant = "full", tone = "auto", className, title = "Inst
         <img src="/brand/logo-white.webp" alt={title} width={891} height={220} className={image} />
       ) : (
         <>
-          <img src="/brand/logo-navy.webp" alt={title} width={848} height={220} className={cn(image, "dark:hidden")} />
+          <img src="/brand/logo-navy.webp" alt={title} width={885} height={220} className={cn(image, "dark:hidden")} />
           <img src="/brand/logo-white.webp" alt={title} width={891} height={220} className={cn(image, "hidden dark:block")} />
         </>
       )}
