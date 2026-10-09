@@ -13,7 +13,8 @@
     "test": "turbo run test",
     "agent-art": "node scripts/build-agent-art.mjs",
     "build:web": "turbo run build --filter=@ix/web",
-    "start:web": "pnpm --filter @ix/web start"
+    "start:web": "pnpm --filter @ix/web start",
+    "start": "pnpm --filter @ix/web start"
   },
   "devDependencies": {
     "turbo": "^2.11.7",
