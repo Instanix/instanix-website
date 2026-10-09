@@ -30,12 +30,19 @@ if (!existsSync(path.join(app, ".next"))) {
   throw new Error("apps/web/.next is missing: build the site before making it self-contained");
 }
 
+// Use the same pnpm that is running this build. A bare "pnpm" on the host's PATH can be an
+// older release with different `deploy` options than the version pinned in package.json.
+function pnpm(args) {
+  const running = process.env.npm_execpath;
+  if (running && /\.[cm]?js$/.test(running)) {
+    execFileSync(process.execPath, [running, ...args], { cwd: root, stdio: "inherit" });
+  } else {
+    execFileSync("pnpm", args, { cwd: root, stdio: "inherit", shell: process.platform === "win32" });
+  }
+}
+
 rmSync(staging, { recursive: true, force: true });
-execFileSync("pnpm", ["--filter", "@ix/web", "deploy", "--legacy", "--prod", staging], {
-  cwd: root,
-  stdio: "inherit",
-  shell: process.platform === "win32",
-});
+pnpm(["--filter", "@ix/web", "deploy", "--legacy", "--prod", staging]);
 
 if (!existsSync(path.join(staging, "node_modules", "next", "package.json"))) {
   throw new Error("The self-contained dependency tree does not contain next");
