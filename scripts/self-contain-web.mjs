@@ -9,7 +9,7 @@
 // It runs after `next build`. It is meant for the host's build step, not for local
 // development: afterwards the app folder has production dependencies only.
 import { execFileSync } from "node:child_process";
-import { existsSync, renameSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, renameSync, rmSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -33,12 +33,27 @@ if (!existsSync(path.join(app, ".next"))) {
 // Use the same pnpm that is running this build. A bare "pnpm" on the host's PATH can be an
 // older release with different `deploy` options than the version pinned in package.json.
 function pnpm(args) {
+  const shell = process.platform === "win32";
+  const pinned = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8")).packageManager;
   const running = process.env.npm_execpath;
-  if (running && /\.[cm]?js$/.test(running)) {
-    execFileSync(process.execPath, [running, ...args], { cwd: root, stdio: "inherit" });
-  } else {
-    execFileSync("pnpm", args, { cwd: root, stdio: "inherit", shell: process.platform === "win32" });
+  // Tried in order until one works: the pnpm running this script, corepack's pinned pnpm,
+  // then the pinned version fetched with npx.
+  const candidates = [
+    ...(running && /\.[cm]?js$/.test(running) ? [[process.execPath, [running, ...args], false]] : []),
+    ["corepack", ["pnpm", ...args], shell],
+    ["npx", ["--yes", pinned, ...args], shell],
+  ];
+  let lastError;
+  for (const [command, commandArgs, useShell] of candidates) {
+    try {
+      execFileSync(command, commandArgs, { cwd: root, stdio: "inherit", shell: useShell });
+      return;
+    } catch (error) {
+      lastError = error;
+      console.warn(`self-contain: "${command}" could not run pnpm deploy, trying the next option`);
+    }
   }
+  throw lastError;
 }
 
 rmSync(staging, { recursive: true, force: true });
