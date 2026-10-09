@@ -1,7 +1,7 @@
 {
   "name": "ix",
   "private": true,
-  "packageManager": "pnpm@12.9.1",
+  "packageManager": "pnpm@10.34.6",
   "engines": {
     "node": ">=22"
   },
