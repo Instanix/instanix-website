@@ -4,7 +4,6 @@ import Link from "next/link";
 import { BuildTeam, type BuildGoal } from "@/components/build-team";
 import { Intro, PageHero, Section, SiteChrome } from "@/components/site-chrome";
 import { GOALS, SOLUTIONS } from "@/lib/catalog";
-import { COMMAND_URL } from "@/lib/env";
 import { loadPage, pageMetadata, type LocaleParams } from "@/lib/page";
 
 export function generateMetadata({ params }: LocaleParams) {
@@ -91,7 +90,7 @@ export default async function SolutionsPage({ params }: LocaleParams) {
         <BuildTeam
           goals={goals}
           labels={{ goals: w.build.goalsLabel, recommended: w.build.recommended, cta: w.build.cta }}
-          ctaHref={COMMAND_URL}
+          ctaHref={`/${locale}/assessment`}
         />
       </Section>
     </SiteChrome>

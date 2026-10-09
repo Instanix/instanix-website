@@ -9,7 +9,6 @@ import type { CSSProperties } from "react";
 import { SolutionCard } from "@/components/blocks";
 import { Section, SiteChrome } from "@/components/site-chrome";
 import { SOLUTIONS } from "@/lib/catalog";
-import { COMMAND_URL } from "@/lib/env";
 import { alternatesFor } from "@/lib/page";
 
 interface Props {
@@ -74,10 +73,10 @@ export default async function AgentPage({ params }: Props) {
             <p className="max-w-xl text-lg text-pretty text-fg-soft sm:text-xl">{copy.summary}</p>
             <Eyebrow>{copy.domain}</Eyebrow>
             <div>
-              <a href={COMMAND_URL} className={buttonClass("primary", "lg")}>
+              <Link href={`/${locale}/assessment`} className={buttonClass("primary", "lg")}>
                 {a.cta}
                 <ArrowRight className="size-4.5 rtl:rotate-180" aria-hidden="true" />
-              </a>
+              </Link>
             </div>
           </div>
           <div className="relative flex h-[22rem] justify-center sm:h-[30rem]">

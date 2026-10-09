@@ -3,7 +3,6 @@ import { buttonClass, Logo } from "@ix/ui";
 import { ThemeToggle } from "@ix/ui/client";
 import { Globe } from "lucide-react";
 import Link from "next/link";
-import { COMMAND_URL } from "@/lib/env";
 
 export function siteLinks(locale: Locale, t: Dictionary): readonly { href: string; label: string }[] {
   const n = t.web.nav;
@@ -53,9 +52,6 @@ export function SiteHeader({ locale, t, path = "" }: { readonly locale: Locale; 
             <span>{t.common.switchLanguage}</span>
           </Link>
           <ThemeToggle labels={{ useLight: t.common.useLightTheme, useDark: t.common.useDarkTheme }} />
-          <a href={COMMAND_URL} className={buttonClass("secondary", "sm", "hidden h-10 md:inline-flex")}>
-            {n.login}
-          </a>
           <Link href={`/${locale}/assessment`} className={buttonClass("primary", "sm", "hidden h-10 sm:inline-flex")}>
             {n.assessment}
           </Link>

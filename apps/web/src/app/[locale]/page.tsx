@@ -10,7 +10,6 @@ import { Hero } from "@/components/hero";
 import { DemoSection, IndustryCards } from "@/components/sections";
 import { Heading, Intro, Section, SiteChrome } from "@/components/site-chrome";
 import { FEATURED_TOOLS, GOALS, SOLUTIONS } from "@/lib/catalog";
-import { COMMAND_URL } from "@/lib/env";
 import { loadPage, type LocaleParams } from "@/lib/page";
 
 const APP_ICONS: readonly LucideIcon[] = [Users, Building2, AppWindow, Settings2, LayoutDashboard, Workflow];
@@ -161,7 +160,7 @@ export default async function HomePage({ params }: LocaleParams) {
         <BuildTeam
           goals={goals}
           labels={{ goals: w.build.goalsLabel, recommended: w.build.recommended, cta: w.build.cta }}
-          ctaHref={COMMAND_URL}
+          ctaHref={`/${locale}/assessment`}
         />
       </Section>
 
@@ -174,10 +173,10 @@ export default async function HomePage({ params }: LocaleParams) {
             <span className="ix-gradient-text block lg:whitespace-nowrap">{w.command.accent}</span>
           </Heading>
           <p className="text-lg text-pretty text-muted">{w.command.body}</p>
-          <a href={COMMAND_URL} className={buttonClass("secondary", "lg")}>
+          <Link href={`/${locale}/platform`} className={buttonClass("secondary", "lg")}>
             {w.command.cta}
             <ArrowRight className="size-4.5 rtl:rotate-180" aria-hidden="true" />
-          </a>
+          </Link>
         </div>
         <CommandPreview t={t} />
       </Section>

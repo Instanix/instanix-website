@@ -1,21 +1,5 @@
-const LOCAL_COMMAND_URL = "http://localhost:3001";
-
-function readCommandUrl(): string {
-  const raw = process.env.NEXT_PUBLIC_COMMAND_URL ?? LOCAL_COMMAND_URL;
-  let url: URL;
-  try {
-    url = new URL(raw);
-  } catch {
-    throw new Error(`NEXT_PUBLIC_COMMAND_URL is not a valid URL: "${raw}"`);
-  }
-  if (url.protocol !== "https:" && url.protocol !== "http:") {
-    throw new Error(`NEXT_PUBLIC_COMMAND_URL must be http(s): "${raw}"`);
-  }
-  return url.toString().replace(/\/$/, "");
-}
-
 function readSiteUrl(): string {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL ?? "https://instanix.ae";
+  const raw = process.env.NEXT_PUBLIC_SITE_URL || "https://instanix.ae";
   let url: URL;
   try {
     url = new URL(raw);
@@ -59,6 +43,3 @@ export const WHATSAPP_NUMBER = readWhatsAppNumber();
 
 /** Public company contact address shown on the site. */
 export const CONTACT_EMAIL = "info@instanix.ae";
-
-/** Where the public site sends people to sign in / start (the IX Command app). */
-export const COMMAND_URL = readCommandUrl();

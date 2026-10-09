@@ -17,12 +17,12 @@ export function getLeadMail(): LeadMail | null {
   const password = process.env.SMTP_PASSWORD;
   if (!host || !user || !password) return null;
 
-  const port = Number(process.env.SMTP_PORT ?? 465);
+  const port = Number(process.env.SMTP_PORT || 465);
   if (!Number.isInteger(port) || port < 1 || port > 65535) {
     throw new Error("SMTP_PORT must be a port number, e.g. 465");
   }
   return {
-    mailer: createSmtpMailer({ host, port, user, password, from: process.env.SMTP_FROM ?? `Instanix <${user}>` }),
-    to: process.env.LEADS_NOTIFY_TO ?? user,
+    mailer: createSmtpMailer({ host, port, user, password, from: process.env.SMTP_FROM || `Instanix <${user}>` }),
+    to: process.env.LEADS_NOTIFY_TO || user,
   };
 }

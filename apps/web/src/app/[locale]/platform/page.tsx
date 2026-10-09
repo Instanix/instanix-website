@@ -3,7 +3,7 @@ import { AgentFigure, buttonClass, Card } from "@ix/ui";
 import { ArrowRight, BarChart3, BookOpen, LayoutDashboard, Plug, ShieldCheck, Users, Workflow, type LucideIcon } from "lucide-react";
 import { GuardGrid, HowBand } from "@/components/blocks";
 import { Intro, PageHero, Section, SiteChrome } from "@/components/site-chrome";
-import { COMMAND_URL } from "@/lib/env";
+import Link from "next/link";
 import { loadPage, pageMetadata, type LocaleParams } from "@/lib/page";
 
 /** Same order as `platformPage.modules` in the dictionaries. */
@@ -30,10 +30,10 @@ export default async function PlatformPage({ params }: LocaleParams) {
         body={p.body}
         art={<AgentFigure agent={getAgent("zeus")} priority />}
       >
-        <a href={COMMAND_URL} className={buttonClass("primary", "lg")}>
+        <Link href={`/${locale}/assessment`} className={buttonClass("primary", "lg")}>
           {t.web.hero.primaryCta}
           <ArrowRight className="size-4.5 rtl:rotate-180" aria-hidden="true" />
-        </a>
+        </Link>
       </PageHero>
 
       <Section>
