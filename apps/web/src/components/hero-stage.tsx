@@ -3,13 +3,29 @@
 import { getAgent, type AgentKey } from "@ix/agents";
 import type { Dictionary, Locale } from "@ix/i18n";
 import { buttonClass, Eyebrow } from "@ix/ui";
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown, Mic, Square } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
+import { saveAssessmentDraft } from "@/lib/assessment-draft";
 import { prefersReducedMotion } from "./motion";
 
-/** Where the hero hands a visitor's first sentence to the assessment form. */
-export const ASSESSMENT_DRAFT_KEY = "ix-assessment-draft";
+/** The part of the browser speech API this page uses. It is not in the standard DOM types. */
+interface SpeechRecognizer {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  onresult: ((event: { readonly results: ArrayLike<ArrayLike<{ readonly transcript: string }>> }) => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+  start(): void;
+  stop(): void;
+}
+type SpeechRecognizerConstructor = new () => SpeechRecognizer;
+
+function speechRecognizer(): SpeechRecognizerConstructor | null {
+  const scope = window as unknown as { SpeechRecognition?: SpeechRecognizerConstructor; webkitSpeechRecognition?: SpeechRecognizerConstructor };
+  return scope.SpeechRecognition ?? scope.webkitSpeechRecognition ?? null;
+}
 
 /**
  * The cast on stage, front to back. `x` is the offset from center in percent of the
@@ -35,6 +51,37 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
   const router = useRouter();
   const sectionRef = useRef<HTMLElement>(null);
   const [draft, setDraft] = useState("");
+  const [canListen, setCanListen] = useState(false);
+  const [listening, setListening] = useState(false);
+  const recognizerRef = useRef<SpeechRecognizer | null>(null);
+
+  // The microphone only appears where the browser can recognise speech.
+  useEffect(() => {
+    setCanListen(speechRecognizer() !== null);
+    return () => recognizerRef.current?.stop();
+  }, []);
+
+  function toggleVoice() {
+    if (listening) {
+      recognizerRef.current?.stop();
+      return;
+    }
+    const Recognizer = speechRecognizer();
+    if (!Recognizer) return;
+    const recognizer = new Recognizer();
+    recognizer.lang = locale === "ar" ? "ar-AE" : "en-US";
+    recognizer.interimResults = true;
+    recognizer.continuous = false;
+    recognizer.onresult = (event) => {
+      const text = Array.from(event.results, (result) => result[0]?.transcript ?? "").join(" ");
+      setDraft(text.trim().slice(0, 300));
+    };
+    recognizer.onend = () => setListening(false);
+    recognizer.onerror = () => setListening(false);
+    recognizerRef.current = recognizer;
+    setListening(true);
+    recognizer.start();
+  }
 
   // The stage follows the pointer and opens up as the page scrolls. Both write CSS
   // variables, so React never re-renders for motion.
@@ -72,12 +119,8 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
 
   function ask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    try {
-      const text = draft.trim();
-      if (text) window.sessionStorage.setItem(ASSESSMENT_DRAFT_KEY, text);
-    } catch {
-      // Storage can be blocked; the visitor simply starts the form empty.
-    }
+    recognizerRef.current?.stop();
+    saveAssessmentDraft(draft);
     router.push(`/${locale}/assessment`);
   }
 
@@ -118,9 +161,23 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
               onChange={(event) => setDraft(event.currentTarget.value)}
               maxLength={300}
               autoComplete="off"
-              placeholder={h.promptPlaceholder}
+              placeholder={listening ? h.voiceListening : h.promptPlaceholder}
               className="h-12 min-w-0 flex-1 bg-transparent text-base text-fg outline-none placeholder:text-muted"
             />
+            {canListen ? (
+              <button
+                type="button"
+                onClick={toggleVoice}
+                aria-pressed={listening}
+                aria-label={listening ? h.voiceStop : h.voiceStart}
+                title={listening ? h.voiceStop : h.voiceStart}
+                className={`grid size-12 shrink-0 place-items-center rounded-full transition-colors duration-300 ${
+                  listening ? "ix-node-active bg-danger text-white" : "text-fg-soft hover:bg-[color-mix(in_srgb,var(--ix-brand)_12%,transparent)] hover:text-brand-text"
+                }`}
+              >
+                {listening ? <Square className="size-4" aria-hidden="true" /> : <Mic className="size-5" aria-hidden="true" />}
+              </button>
+            ) : null}
             <button
               type="submit"
               className={buttonClass("primary", "md", "h-12 shrink-0")}

@@ -6,7 +6,7 @@ import { AgentAvatar, Badge, buttonClass, Card } from "@ix/ui";
 import { CalendarCheck, CircleCheck, Link2, LockKeyhole, MessageCircle, RotateCcw, Sparkles, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { ASSESSMENT_DRAFT_KEY } from "./hero-stage";
+import { ASSESSMENT_DRAFT_KEY } from "@/lib/assessment-draft";
 
 type Copy = Dictionary["web"]["assessment"];
 

@@ -16,3 +16,15 @@ export {
 export { createOpenAiProvider } from "./openai";
 export { AiError, type AiErrorCode, type AiProvider, type AiUsage, type StructuredRequest, type StructuredResult } from "./provider";
 export { createRateLimiter, type RateLimitDecision, type RateLimiter } from "./rate-limit";
+export {
+  DEMO_CHAT_JSON_SCHEMA,
+  DEMO_CHAT_MAX_LENGTH,
+  DEMO_CHAT_MAX_TURNS,
+  DEMO_CHAT_SCENARIOS,
+  demoChatInputSchema,
+  demoChatOutputSchema,
+  runDemoChat,
+  type DemoChatInput,
+  type DemoChatResult,
+  type DemoChatScenario,
+} from "./demo-chat";

@@ -632,3 +632,37 @@ html[lang="ar"] :is(h1, h2, h3, h4):not([dir="ltr"]) {
     radial-gradient(color-mix(in srgb, var(--ix-fg) 7%, transparent) 1px, transparent 1px) 0 0 / 18px 18px,
     var(--ix-surface-2);
 }
+
+/* Range slider: a filled track and a lit thumb. --fill is the value as a percentage. */
+.ix-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--ix-primary) var(--fill, 50%), var(--ix-line) var(--fill, 50%));
+  cursor: pointer;
+}
+[dir="rtl"] .ix-range {
+  background: linear-gradient(to left, var(--ix-primary) var(--fill, 50%), var(--ix-line) var(--fill, 50%));
+}
+.ix-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  border: 3px solid var(--ix-surface);
+  background: var(--ix-primary);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ix-cyan) 55%, transparent), 0 6px 16px -4px color-mix(in srgb, var(--ix-primary) 80%, transparent);
+  transition: transform 0.2s ease;
+}
+.ix-range::-moz-range-thumb {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  border: 3px solid var(--ix-surface);
+  background: var(--ix-primary);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ix-cyan) 55%, transparent), 0 6px 16px -4px color-mix(in srgb, var(--ix-primary) 80%, transparent);
+}
+.ix-range:active::-webkit-slider-thumb {
+  transform: scale(1.15);
+}

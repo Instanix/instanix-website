@@ -1,5 +1,4 @@
 import type { Dictionary, Locale } from "@ix/i18n";
-import { buttonClass } from "@ix/ui";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { assertDemoScripts } from "@/lib/demo-script";
@@ -25,11 +24,7 @@ export function DemoSection({
   return (
     <Section id="demo" className="space-y-8">
       {heading ? <Intro eyebrow={d.eyebrow} title={d.title} body={d.body} /> : null}
-      <LiveDemo copy={d} {...(only ? { initial: only, scenarios: [only] } : {})} />
-      <Link href={`/${locale}/assessment`} className={buttonClass("primary", "lg")}>
-        {d.cta}
-        <ArrowRight className="size-4.5 rtl:rotate-180" aria-hidden="true" />
-      </Link>
+      <LiveDemo locale={locale} copy={d} {...(only ? { initial: only, scenarios: [only] } : {})} />
     </Section>
   );
 }
