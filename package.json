@@ -1,0 +1,23 @@
+{
+  "name": "ix",
+  "private": true,
+  "packageManager": "pnpm@12.9.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "agent-art": "node scripts/build-agent-art.mjs",
+    "build:web": "turbo run build --filter=@ix/web",
+    "start:web": "pnpm --filter @ix/web start"
+  },
+  "devDependencies": {
+    "turbo": "^2.11.7",
+    "typescript": "^6.0.0",
+    "sharp": "^0.34.0"
+  }
+}

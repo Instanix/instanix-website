@@ -1,0 +1,7 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "web", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "@ix/web", "dev"], "port": 3000 },
+    { "name": "command", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "@ix/command", "dev"], "port": 3001 }
+  ]
+}

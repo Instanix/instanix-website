@@ -1,0 +1,30 @@
+{
+  "name": "@ix/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./styles.css": "./src/styles.css"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@ix/agents": "workspace:*",
+    "@ix/i18n": "workspace:*",
+    "lucide-react": "^1.52.0"
+  },
+  "peerDependencies": {
+    "react": "^19.3.0"
+  },
+  "devDependencies": {
+    "@ix/eslint-config": "workspace:*",
+    "@types/react": "^19",
+    "eslint": "^10.12.0",
+    "react": "^19.3.0",
+    "typescript": "^6.0.0"
+  }
+}

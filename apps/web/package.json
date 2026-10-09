@@ -1,0 +1,38 @@
+{
+  "name": "@ix/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "next typegen && tsc --noEmit",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@ix/agents": "workspace:*",
+    "@ix/i18n": "workspace:*",
+    "@ix/ui": "workspace:*",
+    "lucide-react": "^1.52.0",
+    "next": "^16.4.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "simple-icons": "^16.34.0",
+    "@ix/ai": "workspace:*",
+    "server-only": "^0.0.1",
+    "@ix/db": "workspace:*",
+    "zod": "^4",
+    "@ix/integrations": "workspace:*"
+  },
+  "devDependencies": {
+    "@ix/eslint-config": "workspace:*",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^10.12.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.0"
+  }
+}

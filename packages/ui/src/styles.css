@@ -1,0 +1,302 @@
+/*
+ * IX design tokens — single source for both apps.
+ * Light is canonical; dark is a full-parity alternative (docs/04_UI_UX_DESIGN_SYSTEM.md).
+ * Brand blue working reference is #0091FF; interactive blue is darker so white
+ * button text meets WCAG AA (4.5:1). Lock both against final brand assets.
+ */
+/* `dark:` utilities follow the app theme switch, not the OS setting. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  color-scheme: light;
+  --ix-bg: #f5f8fc;
+  --ix-bg-tint: #e3efff;
+  --ix-surface: #ffffff;
+  --ix-surface-2: #eef4fb;
+  --ix-line: #dce5f0;
+  --ix-line-strong: #c3d1e3;
+  --ix-fg: #06173a;
+  --ix-fg-soft: #33435f;
+  --ix-muted: #56667f;
+  --ix-primary: #0a63f0;
+  --ix-primary-hover: #0852cc;
+  --ix-on-primary: #ffffff;
+  --ix-brand: #0091ff;
+  --ix-cyan: #00c8ff;
+  --ix-brand-text: #0a63f0;
+  --ix-brand-soft: #e6f2ff;
+  --ix-success: #0b7f58;
+  --ix-warning: #9a6200;
+  --ix-danger: #c62a21;
+  --ix-glass: rgb(255 255 255 / 0.68);
+  --ix-glass-line: rgb(255 255 255 / 0.9);
+  --ix-shadow-sm: 0 1px 2px rgb(6 23 58 / 0.05);
+  --ix-shadow: 0 1px 2px rgb(6 23 58 / 0.04), 0 10px 28px -10px rgb(6 23 58 / 0.14);
+  --ix-shadow-lg: 0 2px 4px rgb(6 23 58 / 0.04), 0 28px 60px -20px rgb(10 99 240 / 0.28);
+  --ix-glow: 0 0 0 1px rgb(0 145 255 / 0.18), 0 12px 40px -8px rgb(0 145 255 / 0.35);
+  /* The "ink" band stays dark in both themes (how-it-works, footer). */
+  --ix-ink: #06122b;
+  --ix-ink-2: #0b1d42;
+  --ix-on-ink: #eaf2ff;
+  --ix-on-ink-muted: #a9b9d6;
+  --ix-ink-line: rgb(140 175 255 / 0.18);
+  --ix-font-stack: var(--font-latin), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+ * Arabic leads with the Arabic face (the Latin stack includes a full-Unicode fallback
+ * that would otherwise shadow it). Latin brand tokens — logo, agent names, serial IDs —
+ * are always marked dir="ltr" and stay in the Latin face.
+ * Unlayered on purpose: it must beat the :root default above.
+ */
+html[lang="ar"] {
+  --ix-font-stack: var(--font-arabic), var(--font-latin), ui-sans-serif, system-ui, sans-serif;
+}
+html[lang="ar"] [dir="ltr"]:not(code, .font-mono, .font-mono *) {
+  font-family: var(--font-latin), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --ix-bg: #050b1a;
+  --ix-bg-tint: #0a1f45;
+  --ix-surface: #0b1528;
+  --ix-surface-2: #111e38;
+  --ix-line: #1d2c4b;
+  --ix-line-strong: #2d4169;
+  --ix-fg: #eaf1ff;
+  --ix-fg-soft: #c4d1ea;
+  --ix-muted: #97a8c8;
+  --ix-primary: #1668f2;
+  --ix-primary-hover: #2f7bff;
+  --ix-on-primary: #ffffff;
+  --ix-brand-text: #5bb6ff;
+  --ix-brand-soft: #0d2550;
+  --ix-success: #3ecf9a;
+  --ix-warning: #f2b84b;
+  --ix-danger: #ff7b72;
+  --ix-glass: rgb(13 24 46 / 0.62);
+  --ix-glass-line: rgb(130 170 255 / 0.2);
+  --ix-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --ix-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 12px 32px -12px rgb(0 0 0 / 0.7);
+  --ix-shadow-lg: 0 2px 4px rgb(0 0 0 / 0.4), 0 30px 70px -20px rgb(0 110 255 / 0.35);
+  --ix-glow: 0 0 0 1px rgb(60 150 255 / 0.3), 0 12px 44px -8px rgb(0 145 255 / 0.5);
+  --ix-ink: #030814;
+  --ix-ink-2: #0a1838;
+}
+
+@theme inline {
+  --color-bg: var(--ix-bg);
+  --color-bg-tint: var(--ix-bg-tint);
+  --color-surface: var(--ix-surface);
+  --color-surface-2: var(--ix-surface-2);
+  --color-line: var(--ix-line);
+  --color-line-strong: var(--ix-line-strong);
+  --color-fg: var(--ix-fg);
+  --color-fg-soft: var(--ix-fg-soft);
+  --color-muted: var(--ix-muted);
+  --color-primary: var(--ix-primary);
+  --color-primary-hover: var(--ix-primary-hover);
+  --color-on-primary: var(--ix-on-primary);
+  --color-brand: var(--ix-brand);
+  --color-cyan: var(--ix-cyan);
+  --color-brand-text: var(--ix-brand-text);
+  --color-brand-soft: var(--ix-brand-soft);
+  --color-success: var(--ix-success);
+  --color-warning: var(--ix-warning);
+  --color-danger: var(--ix-danger);
+  --color-ink: var(--ix-ink);
+  --color-ink-2: var(--ix-ink-2);
+  --color-on-ink: var(--ix-on-ink);
+  --color-on-ink-muted: var(--ix-on-ink-muted);
+  --color-ink-line: var(--ix-ink-line);
+  --shadow-ix-sm: var(--ix-shadow-sm);
+  --shadow-ix: var(--ix-shadow);
+  --shadow-ix-lg: var(--ix-shadow-lg);
+  --shadow-ix-glow: var(--ix-glow);
+  --font-sans: var(--ix-font-stack);
+  --radius-ix: 1rem;
+  --radius-ix-lg: 1.5rem;
+}
+
+@layer base {
+  html {
+    background: var(--ix-bg);
+    color: var(--ix-fg);
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+  }
+  /* Arabic glyphs sit taller, so loosen leading. */
+  html[lang="ar"] {
+    line-height: 1.7;
+  }
+  body {
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ix-brand);
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+  }
+  ::selection {
+    background: rgb(0 145 255 / 0.25);
+  }
+}
+
+/* Glass is reserved for focal surfaces and must stay readable in both themes. */
+.ix-glass {
+  background: var(--ix-glass);
+  border: 1px solid var(--ix-glass-line);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .ix-glass {
+    background: var(--ix-surface);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .ix-glass {
+    background: var(--ix-surface);
+    border-color: var(--ix-line);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+.ix-gradient-text {
+  background: linear-gradient(100deg, var(--ix-cyan), var(--ix-brand) 45%, var(--ix-primary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+[data-theme="dark"] .ix-gradient-text {
+  background-image: linear-gradient(100deg, #5fe0ff, #37a6ff 50%, #4f86ff);
+}
+
+/* Ambient page backdrop: restrained, no neon. */
+.ix-backdrop {
+  background:
+    radial-gradient(60rem 32rem at 85% -8%, color-mix(in srgb, var(--ix-brand) 16%, transparent), transparent 70%),
+    radial-gradient(40rem 26rem at -10% 10%, color-mix(in srgb, var(--ix-cyan) 10%, transparent), transparent 70%),
+    var(--ix-bg);
+}
+
+.ix-grid-lines {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--ix-brand) 9%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--ix-brand) 9%, transparent) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+@keyframes ix-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+@keyframes ix-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+@keyframes ix-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+@keyframes ix-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.ix-anim-pulse {
+  animation: ix-pulse 3.6s ease-in-out infinite;
+}
+.ix-anim-float {
+  animation: ix-float 7s ease-in-out infinite;
+}
+.ix-anim-flow {
+  stroke-dasharray: 4 8;
+  animation: ix-flow 1.6s linear infinite;
+}
+.ix-skeleton {
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, var(--ix-surface-2) 25%, var(--ix-line) 50%, var(--ix-surface-2) 75%);
+  background-size: 200% 100%;
+  animation: ix-shimmer 1.6s linear infinite;
+}
+
+@keyframes ix-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes ix-flash {
+  from {
+    background: color-mix(in srgb, var(--ix-brand) 28%, transparent);
+  }
+}
+@keyframes ix-typing {
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+.ix-anim-in {
+  animation: ix-in 0.35s ease-out both;
+}
+.ix-anim-flash {
+  border-radius: 0.375rem;
+  padding-inline: 0.375rem;
+  margin-inline: -0.375rem;
+  animation: ix-flash 1.2s ease-out both;
+}
+.ix-typing-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  background: var(--ix-muted);
+  animation: ix-typing 1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ix-anim-in,
+  .ix-anim-flash,
+  .ix-typing-dot {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+  .ix-anim-pulse,
+  .ix-anim-float,
+  .ix-anim-flow,
+  .ix-skeleton {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
