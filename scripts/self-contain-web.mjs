@@ -54,7 +54,9 @@ function pnpm(args) {
 }
 
 rmSync(staging, { recursive: true, force: true });
-pnpm(["--filter", "@ix/web", "deploy", "--legacy", staging]);
+// A flat (hoisted) tree with no links: the host dereferences links when it copies the standalone
+// server, which breaks pnpm's default linked layout ("Cannot find module '@swc/helpers'").
+pnpm(["--filter", "@ix/web", "deploy", "--legacy", "--config.node-linker=hoisted", staging]);
 
 if (!existsSync(path.join(staging, "node_modules", "next", "package.json"))) {
   throw new Error("The self-contained dependency tree does not contain next");
