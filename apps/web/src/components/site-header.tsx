@@ -52,7 +52,7 @@ export function SiteHeader({ locale, t, path = "" }: { readonly locale: Locale; 
             <span>{t.common.switchLanguage}</span>
           </Link>
           <ThemeToggle labels={{ useLight: t.common.useLightTheme, useDark: t.common.useDarkTheme }} />
-          <Link href={`/${locale}/assessment`} className={buttonClass("primary", "sm", "hidden h-10 sm:inline-flex")}>
+          <Link href={`/${locale}/assessment`} className={buttonClass("primary", "sm", "h-10 max-sm:hidden")}>
             {n.assessment}
           </Link>
         </div>

@@ -5,7 +5,8 @@ import type { Dictionary, Locale } from "@ix/i18n";
 import { AgentAvatar, Badge, buttonClass, Card } from "@ix/ui";
 import { CalendarCheck, CircleCheck, Link2, LockKeyhole, MessageCircle, RotateCcw, Sparkles, TriangleAlert } from "lucide-react";
 import Link from "next/link";
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { ASSESSMENT_DRAFT_KEY } from "./hero-stage";
 
 type Copy = Dictionary["web"]["assessment"];
 
@@ -257,6 +258,20 @@ export function AssessmentForm({
 }) {
   const [state, setState] = useState<State>({ status: "idle" });
   const [problemLength, setProblemLength] = useState(0);
+  const problemRef = useRef<HTMLTextAreaElement>(null);
+
+  // A sentence typed in the home page hero is carried over once.
+  useEffect(() => {
+    try {
+      const draft = window.sessionStorage.getItem(ASSESSMENT_DRAFT_KEY);
+      if (!draft || !problemRef.current) return;
+      window.sessionStorage.removeItem(ASSESSMENT_DRAFT_KEY);
+      problemRef.current.value = draft;
+      setProblemLength(draft.length);
+    } catch {
+      // Storage can be blocked; the form just starts empty.
+    }
+  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -480,6 +495,7 @@ export function AssessmentForm({
         <label className="block space-y-1.5">
           <span className="text-sm font-bold">{copy.form.problem}</span>
           <textarea
+            ref={problemRef}
             name="problem"
             required
             rows={6}

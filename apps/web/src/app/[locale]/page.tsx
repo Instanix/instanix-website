@@ -2,13 +2,15 @@ import { AGENTS, getAgent } from "@ix/agents";
 import { AgentFigure, buttonClass, Eyebrow } from "@ix/ui";
 import { AppWindow, ArrowRight, Building2, LayoutDashboard, Settings2, Users, Workflow, type LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { AgentCard, GuardGrid, HowBand, SolutionCard, ToolMark } from "@/components/blocks";
+import { GuardGrid, HowBand, SolutionCard, ToolMark } from "@/components/blocks";
 import { BuildTeam, type BuildGoal } from "@/components/build-team";
-import { Carousel } from "@/components/carousel";
 import { CommandPreview } from "@/components/command-preview";
-import { Hero } from "@/components/hero";
+import { FlowCanvas } from "@/components/flow-canvas";
+import { HeroStage } from "@/components/hero-stage";
+import { Reveal } from "@/components/motion";
 import { DemoSection, IndustryCards } from "@/components/sections";
 import { Heading, Intro, Section, SiteChrome } from "@/components/site-chrome";
+import { TeamShowcase } from "@/components/team-showcase";
 import { FEATURED_TOOLS, GOALS, SOLUTIONS } from "@/lib/catalog";
 import { loadPage, type LocaleParams } from "@/lib/page";
 
@@ -28,14 +30,14 @@ export default async function HomePage({ params }: LocaleParams) {
   return (
     <SiteChrome locale={locale} t={t}>
       <div>
-        <Hero locale={locale} t={t} />
-        {/* Tool strip, overlapping the bottom of the cover */}
-        <Section className="relative z-10 space-y-3 lg:-mt-16">
-          <div className="ix-glass flex flex-col gap-5 rounded-ix-lg px-6 py-5 shadow-ix-lg lg:flex-row lg:items-center lg:gap-6">
+        <HeroStage locale={locale} t={t} />
+        {/* Tool strip */}
+        <Section className="relative z-10 mt-10 space-y-3">
+          <div className="ix-glass-strong flex flex-col gap-5 rounded-ix-lg px-6 py-5 lg:flex-row lg:items-center lg:gap-6">
             <h2 className="shrink-0 text-xs leading-relaxed font-extrabold tracking-widest text-fg-soft uppercase lg:max-w-48">
               {w.connect.title}
             </h2>
-            <ul className="flex flex-1 flex-wrap items-center gap-x-6 gap-y-4 xl:flex-nowrap xl:justify-between xl:gap-x-3">
+            <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-3">
               {FEATURED_TOOLS.map((tool) => (
                 <li key={tool.name}>
                   <ToolMark tool={tool} />
@@ -51,24 +53,35 @@ export default async function HomePage({ params }: LocaleParams) {
         </Section>
       </div>
 
-      {/* IX Team */}
-      <Section id="team" className="grid gap-8 lg:grid-cols-[20rem_1fr] lg:items-center lg:gap-10">
-        <Intro eyebrow={w.team.eyebrow} title={w.team.title} body={w.team.body}>
-          <p className="border-s-2 border-brand ps-4 text-base font-bold text-fg-soft">{w.team.statement}</p>
-          <Link href={`/${locale}/agents`} className={buttonClass("secondary", "md")}>
-            {w.links.exploreAgents}
-            <ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" />
-          </Link>
-        </Intro>
-        <div className="min-w-0">
-          <Carousel label={w.team.listLabel} previousLabel={w.team.previous} nextLabel={w.team.next}>
-            {AGENTS.map((agent) => (
-              <li key={agent.key} className="w-52 shrink-0 snap-start sm:w-56">
-                <AgentCard agent={agent} locale={locale} t={t} />
-              </li>
-            ))}
-          </Carousel>
-        </div>
+      <TeamShowcase
+        agents={AGENTS.map((agent) => ({
+          agent,
+          role: t.agents[agent.key].role,
+          summary: t.agents[agent.key].summary,
+          skills: t.agents[agent.key].skills,
+          href: `/${locale}/agents/${agent.key}`,
+        }))}
+        labels={{
+          eyebrow: w.team.eyebrow,
+          title: w.team.title,
+          statement: w.team.statement,
+          list: w.team.listLabel,
+          skills: w.team.skillsLabel,
+          profile: w.team.profile,
+          skip: w.team.skip,
+        }}
+        nextHref="#flow"
+      />
+
+      {/* One message, the whole team: the workflow canvas */}
+      <Section id="flow" className="space-y-8">
+        <Reveal>
+          <Intro eyebrow={w.flow.eyebrow} title={w.flow.title} body={w.flow.body} />
+        </Reveal>
+        <Reveal delay={0.1}>
+          <FlowCanvas copy={w.flow} />
+          <p className="mt-3 px-1 text-xs text-muted">{w.flow.note}</p>
+        </Reveal>
       </Section>
 
       <DemoSection locale={locale} t={t} />

@@ -46,6 +46,7 @@ export function ZeusLauncher({
       </button>
 
       <dialog
+        data-lenis-prevent
         ref={dialogRef}
         aria-labelledby={titleId}
         // A click on the backdrop lands on the dialog element itself.

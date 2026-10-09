@@ -1,0 +1,198 @@
+"use client";
+
+import { getAgent, type AgentKey } from "@ix/agents";
+import type { Dictionary, Locale } from "@ix/i18n";
+import { Eyebrow } from "@ix/ui";
+import { ArrowRight, ChevronDown, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
+import { prefersReducedMotion } from "./motion";
+
+/** Where the hero hands a visitor's first sentence to the assessment form. */
+export const ASSESSMENT_DRAFT_KEY = "ix-assessment-draft";
+
+/**
+ * The cast on stage, front to back. `x` is the offset from center in percent of the
+ * stage width, `size` the height relative to ZEUS, `depth` how far it moves with the pointer.
+ */
+const CAST: readonly { key: AgentKey; x: number; size: number; depth: number }[] = [
+  { key: "zeus", x: 0, size: 1, depth: 1 },
+  { key: "athena", x: -15, size: 0.86, depth: 0.7 },
+  { key: "hephaestus", x: 15, size: 0.86, depth: 0.7 },
+  { key: "hermes", x: -28, size: 0.74, depth: 0.45 },
+  { key: "atlas", x: 28, size: 0.74, depth: 0.45 },
+  { key: "poseidon", x: -39.5, size: 0.64, depth: 0.25 },
+  { key: "ares", x: 39.5, size: 0.64, depth: 0.25 },
+];
+
+export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: Dictionary }) {
+  const h = t.web.hero;
+  const router = useRouter();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [draft, setDraft] = useState("");
+
+  // The stage follows the pointer and opens up as the page scrolls. Both write CSS
+  // variables, so React never re-renders for motion.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || prefersReducedMotion()) return;
+    const target = { x: 0, y: 0 };
+    const current = { x: 0, y: 0 };
+    let frame = 0;
+
+    const onPointer = (event: PointerEvent) => {
+      const box = section.getBoundingClientRect();
+      target.x = ((event.clientX - box.left) / box.width) * 2 - 1;
+      target.y = ((event.clientY - box.top) / box.height) * 2 - 1;
+    };
+    const tick = () => {
+      current.x += (target.x - current.x) * 0.07;
+      current.y += (target.y - current.y) * 0.07;
+      const box = section.getBoundingClientRect();
+      const spread = Math.min(1, Math.max(0, -box.top / (box.height * 0.7)));
+      section.style.setProperty("--px", current.x.toFixed(4));
+      section.style.setProperty("--py", current.y.toFixed(4));
+      section.style.setProperty("--mx", `${((current.x + 1) * 50).toFixed(2)}%`);
+      section.style.setProperty("--my", `${((current.y + 1) * 50).toFixed(2)}%`);
+      section.style.setProperty("--spread", spread.toFixed(4));
+      frame = requestAnimationFrame(tick);
+    };
+    section.addEventListener("pointermove", onPointer);
+    frame = requestAnimationFrame(tick);
+    return () => {
+      section.removeEventListener("pointermove", onPointer);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  function ask(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    try {
+      const text = draft.trim();
+      if (text) window.sessionStorage.setItem(ASSESSMENT_DRAFT_KEY, text);
+    } catch {
+      // Storage can be blocked; the visitor simply starts the form empty.
+    }
+    router.push(`/${locale}/assessment`);
+  }
+
+  return (
+    <section ref={sectionRef} className="relative isolate -mt-[4.75rem] overflow-hidden pt-[4.75rem]">
+      <div aria-hidden="true" className="ix-stage-light absolute inset-0 -z-10" />
+      <div aria-hidden="true" className="ix-grid-lines absolute inset-0 -z-10 opacity-60" />
+
+      <div className="mx-auto flex max-w-5xl flex-col items-center px-5 pt-12 text-center sm:px-8 sm:pt-16 lg:pt-20">
+        <div className="ix-rise">
+          <Eyebrow>{h.eyebrow}</Eyebrow>
+        </div>
+        <h1
+          className="ix-rise mt-6 text-[2.75rem] leading-[1.02] font-extrabold tracking-tight text-balance sm:text-7xl lg:text-[5.75rem]"
+          style={{ "--d": "0.08s" } as CSSProperties}
+        >
+          <span className="block">{h.line1}</span>
+          <span className="block">
+            {h.line2} <span className="ix-gradient-text">{h.accent}</span> {h.line3}{" "}
+            <span dir="ltr" className="ix-gradient-text inline-block">
+              {h.brand}
+            </span>
+          </span>
+        </h1>
+        <p className="ix-rise mt-6 max-w-2xl text-lg text-pretty text-fg-soft sm:text-xl" style={{ "--d": "0.16s" } as CSSProperties}>
+          {h.body}
+        </p>
+
+        {/* The assessment starts here: one sentence, then ZEUS takes over. */}
+        <form onSubmit={ask} className="ix-rise mt-9 w-full max-w-2xl" style={{ "--d": "0.24s" } as CSSProperties}>
+          <div className="ix-glass-strong flex items-center gap-2 rounded-[1.75rem] p-2 ps-5 transition-shadow focus-within:shadow-ix-glow">
+            <Sparkles className="size-5 shrink-0 text-brand-text" aria-hidden="true" />
+            <label htmlFor="hero-prompt" className="sr-only">
+              {h.promptLabel}
+            </label>
+            <input
+              id="hero-prompt"
+              type="text"
+              value={draft}
+              onChange={(event) => setDraft(event.currentTarget.value)}
+              maxLength={300}
+              autoComplete="off"
+              placeholder={h.promptPlaceholder}
+              className="h-12 min-w-0 flex-1 bg-transparent text-base text-fg outline-none placeholder:text-muted"
+            />
+            <button
+              type="submit"
+              className="inline-flex h-12 shrink-0 items-center gap-2 rounded-[1.25rem] bg-primary px-5 text-sm font-bold text-on-primary shadow-ix-glow transition-[background-color,transform] hover:bg-primary-hover active:scale-[0.97]"
+            >
+              <span dir="auto">{h.promptCta}</span>
+              <ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" />
+            </button>
+          </div>
+          <ul className="mt-4 flex flex-wrap justify-center gap-2">
+            {h.promptExamples.map((example) => (
+              <li key={example}>
+                <button
+                  type="button"
+                  onClick={() => setDraft(example)}
+                  className="ix-glass rounded-full px-3.5 py-1.5 text-xs font-semibold text-fg-soft transition-colors hover:text-brand-text"
+                >
+                  {example}
+                </button>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs text-muted">{h.promptHint}</p>
+        </form>
+      </div>
+
+      {/* The characters never mirror in RTL: they carry their serial IDs. */}
+      <div dir="ltr" aria-hidden="true" className="relative mx-auto mt-6 h-[19rem] max-w-6xl sm:h-[26rem] lg:h-[32rem]">
+        <div className="ix-stage-floor absolute inset-x-[-10%] bottom-[-6%] h-[70%]" />
+        {CAST.map(({ key, x, size, depth }, index) => {
+          const agent = getAgent(key);
+          return (
+            <div
+              key={key}
+              className="ix-rise absolute bottom-0 left-1/2 will-change-transform"
+              style={
+                {
+                  "--d": `${0.3 + index * 0.07}s`,
+                  "--agent": agent.accent,
+                  height: `${size * 100}%`,
+                  marginLeft: `${x}%`,
+                  zIndex: Math.round(size * 10),
+                } as CSSProperties
+              }
+            >
+              <div
+                className="relative h-full"
+                style={{
+                  transform: `translate3d(calc(-50% + var(--px, 0) * ${depth * 22}px + var(--spread, 0) * ${x * 2.4}px), calc(var(--py, 0) * ${depth * 8}px + var(--spread, 0) * ${(1 - size) * -60}px), 0)`,
+                }}
+              >
+                <span className="absolute inset-x-[-20%] bottom-[-3%] h-[12%] rounded-[50%] bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--agent)_70%,transparent),transparent)] blur-md" />
+                <img
+                  src={`/agents/${key}.webp`}
+                  alt=""
+                  width={400}
+                  height={900}
+                  decoding="async"
+                  fetchPriority={key === "zeus" ? "high" : "auto"}
+                  className="relative h-full w-auto max-w-none object-contain drop-shadow-[0_26px_32px_rgb(6_23_58/0.32)]"
+                  style={{ filter: size < 1 ? `saturate(${0.75 + size * 0.25}) brightness(${0.86 + size * 0.14})` : undefined }}
+                />
+              </div>
+            </div>
+          );
+        })}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-24 bg-linear-to-b from-transparent to-bg" />
+      </div>
+
+      <a
+        href="#team"
+        className="absolute inset-x-0 bottom-3 z-30 mx-auto flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-fg"
+      >
+        {h.scroll}
+        <ChevronDown className="ix-anim-float size-4" aria-hidden="true" />
+      </a>
+    </section>
+  );
+}

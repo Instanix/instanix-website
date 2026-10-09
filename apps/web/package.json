@@ -12,18 +12,19 @@
   },
   "dependencies": {
     "@ix/agents": "workspace:*",
+    "@ix/ai": "workspace:*",
+    "@ix/db": "workspace:*",
     "@ix/i18n": "workspace:*",
+    "@ix/integrations": "workspace:*",
     "@ix/ui": "workspace:*",
+    "lenis": "^1.3.26",
     "lucide-react": "^1.52.0",
     "next": "^16.4.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "simple-icons": "^16.34.0",
-    "@ix/ai": "workspace:*",
     "server-only": "^0.0.1",
-    "@ix/db": "workspace:*",
-    "zod": "^4",
-    "@ix/integrations": "workspace:*"
+    "simple-icons": "^16.34.0",
+    "zod": "^4"
   },
   "devDependencies": {
     "@ix/eslint-config": "workspace:*",

@@ -39,7 +39,7 @@ export function Logo({ variant = "full", tone = "auto", className, title = "Inst
       {variant === "full" ? (
         <span aria-hidden="true" className="text-[1.25em] leading-none font-extrabold tracking-tight">
           <span className={tone === "on-ink" ? "text-on-ink" : "text-fg"}>Instan</span>
-          <span className="ix-gradient-text">ix</span>
+          <span className="ix-gradient-text">IX</span>
         </span>
       ) : null}
     </span>

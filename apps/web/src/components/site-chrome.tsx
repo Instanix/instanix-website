@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { BOOKING_URL, CONTACT_EMAIL, WHATSAPP_NUMBER } from "@/lib/env";
 import { leadsEnabled } from "@/lib/server/leads";
+import { SmoothScroll } from "./motion";
 import { SiteHeader, siteLinks } from "./site-header";
 import { ZeusLauncher } from "./zeus-launcher";
 
@@ -180,6 +181,7 @@ export function SiteChrome({
 }) {
   return (
     <>
+      <SmoothScroll />
       <SiteHeader locale={locale} t={t} path={path} />
       <main id="main" className="flex flex-col gap-20 pb-24 sm:gap-28">
         {children}
