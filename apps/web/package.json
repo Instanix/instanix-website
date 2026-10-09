@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --port 3000",
-    "build": "next build --webpack && node ../../scripts/self-contain-web.mjs --on-host-only",
+    "build": "node ../../scripts/self-contain-web.mjs --on-host-only && next build --webpack",
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
     "lint": "eslint src"
