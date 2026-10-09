@@ -2,7 +2,8 @@
 
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
-import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, type CSSProperties, type ReactNode } from "react";
 
 declare global {
   interface Window {
@@ -21,8 +22,18 @@ export function scrollToY(y: number): void {
   else window.scrollTo({ top: y, behavior: prefersReducedMotion() ? "auto" : "smooth" });
 }
 
-/** Inertial page scrolling. Off for people who ask for reduced motion. */
-export function SmoothScroll() {
+/** Surfaces that light up under the pointer; they read the position from CSS variables. */
+const LIT = ".ix-header-bar, .ix-spot";
+
+/**
+ * Page-wide motion, mounted once:
+ * - inertial scrolling (off for people who ask for reduced motion),
+ * - `.ix-reveal` elements fade in the first time they enter the viewport,
+ * - lit surfaces follow the pointer.
+ */
+export function MotionRoot() {
+  const pathname = usePathname();
+
   useEffect(() => {
     if (prefersReducedMotion()) return;
     const lenis = new Lenis({ lerp: 0.11, anchors: { offset: -96 } });
@@ -37,6 +48,40 @@ export function SmoothScroll() {
       delete window.ixLenis;
     };
   }, []);
+
+  useEffect(() => {
+    const onMove = (event: PointerEvent) => {
+      if (!(event.target instanceof Element)) return;
+      const surface = event.target.closest<HTMLElement>(LIT);
+      if (!surface) return;
+      const box = surface.getBoundingClientRect();
+      const x = `${(((event.clientX - box.left) / box.width) * 100).toFixed(1)}%`;
+      const y = `${(((event.clientY - box.top) / box.height) * 100).toFixed(1)}%`;
+      surface.style.setProperty("--hx", x);
+      surface.style.setProperty("--hy", y);
+      surface.style.setProperty("--sx", x);
+      surface.style.setProperty("--sy", y);
+    };
+    document.addEventListener("pointermove", onMove, { passive: true });
+    return () => document.removeEventListener("pointermove", onMove);
+  }, []);
+
+  // Each page brings its own `.ix-reveal` elements, so observe again after navigation.
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          (entry.target as HTMLElement).dataset.in = "";
+          observer.unobserve(entry.target);
+        }
+      },
+      { rootMargin: "0px 0px -10% 0px" },
+    );
+    for (const element of document.querySelectorAll(".ix-reveal:not([data-in])")) observer.observe(element);
+    return () => observer.disconnect();
+  }, [pathname]);
+
   return null;
 }
 
@@ -51,24 +96,8 @@ export function Reveal({
   readonly delay?: number;
   readonly className?: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          element.dataset.in = "";
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "0px 0px -12% 0px" },
-    );
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
   return (
-    <div ref={ref} className={`ix-reveal ${className}`} style={{ "--d": `${delay}s` } as CSSProperties}>
+    <div className={`ix-reveal ${className}`} style={{ "--d": `${delay}s` } as CSSProperties}>
       {children}
     </div>
   );

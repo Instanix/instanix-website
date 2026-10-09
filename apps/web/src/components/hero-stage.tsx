@@ -2,8 +2,8 @@
 
 import { getAgent, type AgentKey } from "@ix/agents";
 import type { Dictionary, Locale } from "@ix/i18n";
-import { Eyebrow } from "@ix/ui";
-import { ArrowRight, ChevronDown, Sparkles } from "lucide-react";
+import { buttonClass, Eyebrow } from "@ix/ui";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { prefersReducedMotion } from "./motion";
@@ -79,7 +79,6 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
   return (
     <section ref={sectionRef} className="relative isolate -mt-[4.75rem] overflow-hidden pt-[4.75rem]">
       <div aria-hidden="true" className="ix-stage-light absolute inset-0 -z-10" />
-      <div aria-hidden="true" className="ix-grid-lines absolute inset-0 -z-10 opacity-60" />
 
       <div className="mx-auto flex max-w-5xl flex-col items-center px-5 pt-12 text-center sm:px-8 sm:pt-16 lg:pt-20">
         <div className="ix-rise">
@@ -103,8 +102,7 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
 
         {/* The assessment starts here: one sentence, then ZEUS takes over. */}
         <form onSubmit={ask} className="ix-rise mt-9 w-full max-w-2xl" style={{ "--d": "0.24s" } as CSSProperties}>
-          <div className="ix-glass-strong flex items-center gap-2 rounded-[1.75rem] p-2 ps-5 transition-shadow focus-within:shadow-ix-glow">
-            <Sparkles className="size-5 shrink-0 text-brand-text" aria-hidden="true" />
+          <div className="ix-glass-strong flex items-center gap-2 rounded-full p-2 ps-6 transition-shadow focus-within:shadow-ix-glow">
             <label htmlFor="hero-prompt" className="sr-only">
               {h.promptLabel}
             </label>
@@ -120,7 +118,7 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
             />
             <button
               type="submit"
-              className="inline-flex h-12 shrink-0 items-center gap-2 rounded-[1.25rem] bg-primary px-5 text-sm font-bold text-on-primary shadow-ix-glow transition-[background-color,transform] hover:bg-primary-hover active:scale-[0.97]"
+              className={buttonClass("primary", "md", "h-12 shrink-0")}
             >
               <span dir="auto">{h.promptCta}</span>
               <ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" />
@@ -132,7 +130,7 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
                 <button
                   type="button"
                   onClick={() => setDraft(example)}
-                  className="ix-glass rounded-full px-3.5 py-1.5 text-xs font-semibold text-fg-soft transition-colors hover:text-brand-text"
+                  className="ix-btn-glass rounded-full px-3.5 py-1.5 text-xs font-semibold text-fg-soft transition-[border-color,background-color,color,transform] duration-300 hover:text-brand-text"
                 >
                   {example}
                 </button>
@@ -144,7 +142,7 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
       </div>
 
       {/* The characters never mirror in RTL: they carry their serial IDs. */}
-      <div dir="ltr" aria-hidden="true" className="relative mx-auto mt-6 h-[19rem] max-w-6xl sm:h-[26rem] lg:h-[32rem]">
+      <div dir="ltr" aria-hidden="true" className="relative mx-auto mt-8 h-[21rem] max-w-6xl sm:h-[30rem] lg:h-[38rem]">
         <div className="ix-stage-floor absolute inset-x-[-10%] bottom-[-6%] h-[70%]" />
         {CAST.map(({ key, x, size, depth }, index) => {
           const agent = getAgent(key);

@@ -1,7 +1,7 @@
 import { directionOf, getDictionary, isLocale, LOCALES } from "@ix/i18n";
 import { themeInitScript } from "@ix/ui";
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Sans_Arabic, Inter } from "next/font/google";
+import { Alexandria, Inter, Readex_Pro } from "next/font/google";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { SITE_URL } from "@/lib/env";
@@ -9,12 +9,9 @@ import { alternatesFor } from "@/lib/page";
 import "../globals.css";
 
 const latin = Inter({ subsets: ["latin"], variable: "--font-latin", display: "swap" });
-const arabic = IBM_Plex_Sans_Arabic({
-  subsets: ["arabic"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-arabic",
-  display: "swap",
-});
+// Arabic: Readex Pro for text (built for reading), Alexandria for headings.
+const arabic = Readex_Pro({ subsets: ["arabic"], variable: "--font-arabic", display: "swap" });
+const arabicDisplay = Alexandria({ subsets: ["arabic"], variable: "--font-arabic-display", display: "swap" });
 
 interface Props {
   readonly children: ReactNode;
@@ -93,7 +90,7 @@ export default async function RootLayout({ children, params }: Props) {
 
   return (
     // data-theme is set before paint by the inline script, so the server/client attribute differs by design.
-    <html lang={locale} dir={directionOf(locale)} className={`${latin.variable} ${arabic.variable}`} suppressHydrationWarning>
+    <html lang={locale} dir={directionOf(locale)} className={`${latin.variable} ${arabic.variable} ${arabicDisplay.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>

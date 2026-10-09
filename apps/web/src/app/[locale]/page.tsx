@@ -1,20 +1,17 @@
 import { AGENTS, getAgent } from "@ix/agents";
-import { AgentFigure, buttonClass, Eyebrow } from "@ix/ui";
-import { AppWindow, ArrowRight, Building2, LayoutDashboard, Settings2, Users, Workflow, type LucideIcon } from "lucide-react";
+import { AgentFigure, buttonClass } from "@ix/ui";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { GuardGrid, HowBand, SolutionCard, ToolMark } from "@/components/blocks";
+import { GuardGrid, HowBand, ToolMark } from "@/components/blocks";
 import { BuildTeam, type BuildGoal } from "@/components/build-team";
-import { CommandPreview } from "@/components/command-preview";
 import { FlowCanvas } from "@/components/flow-canvas";
 import { HeroStage } from "@/components/hero-stage";
 import { Reveal } from "@/components/motion";
 import { DemoSection, IndustryCards } from "@/components/sections";
-import { Heading, Intro, Section, SiteChrome } from "@/components/site-chrome";
+import { Intro, Section, SiteChrome } from "@/components/site-chrome";
 import { TeamShowcase } from "@/components/team-showcase";
-import { FEATURED_TOOLS, GOALS, SOLUTIONS } from "@/lib/catalog";
+import { FEATURED_TOOLS, GOALS } from "@/lib/catalog";
 import { loadPage, type LocaleParams } from "@/lib/page";
-
-const APP_ICONS: readonly LucideIcon[] = [Users, Building2, AppWindow, Settings2, LayoutDashboard, Workflow];
 
 export default async function HomePage({ params }: LocaleParams) {
   const { locale, t } = await loadPage(params);
@@ -105,68 +102,6 @@ export default async function HomePage({ params }: LocaleParams) {
         />
       </Section>
 
-      {/* Solutions */}
-      <Section id="solutions" className="space-y-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <Intro eyebrow={w.solutions.eyebrow} title={w.solutions.title} body={w.solutions.body} />
-          <Link href={`/${locale}/solutions`} className={buttonClass("secondary", "md")}>
-            {w.links.viewSolutions}
-            <ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" />
-          </Link>
-        </div>
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {SOLUTIONS.map((solution) => (
-            <li key={solution.key}>
-              <SolutionCard solutionKey={solution.key} t={t} />
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      {/* Business applications */}
-      <Section id="apps" className="grid gap-10 lg:grid-cols-[25rem_1fr] lg:items-center">
-        <div className="space-y-5">
-          <Eyebrow>{w.apps.eyebrow}</Eyebrow>
-          <Heading>
-            <span className="block">{w.apps.line1}</span>
-            <span className="ix-gradient-text block lg:whitespace-nowrap">{w.apps.accent}</span>
-            <span className="block">{w.apps.line3}</span>
-          </Heading>
-          <p className="text-lg text-pretty text-muted">{w.apps.body}</p>
-          <Link href={`/${locale}/business-applications`} className={buttonClass("secondary", "md")}>
-            {w.links.exploreApps}
-            <ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" />
-          </Link>
-        </div>
-        <div className="relative overflow-hidden rounded-ix-lg border border-line bg-[linear-gradient(135deg,var(--ix-brand-soft),var(--ix-surface))] p-6 shadow-ix sm:p-10">
-          <div aria-hidden="true" className="ix-grid-lines absolute inset-0" />
-          <div className="relative grid grid-cols-2 items-center gap-4 lg:grid-cols-[1fr_auto_1fr] lg:gap-8">
-            <div
-              aria-hidden="true"
-              className="relative col-span-2 mx-auto grid size-32 place-items-center rounded-[28%] bg-[linear-gradient(135deg,var(--ix-cyan),var(--ix-primary))] text-5xl font-extrabold text-white shadow-ix-glow lg:order-2 lg:col-span-1 lg:size-40"
-            >
-              <span className="ix-anim-pulse absolute -inset-4 rounded-[32%] border border-brand/40" />
-              <span dir="ltr">IX</span>
-            </div>
-            {[w.apps.items.slice(0, 3), w.apps.items.slice(3)].map((group, g) => (
-              <ul key={g} className={`space-y-3 ${g === 0 ? "lg:order-1" : "lg:order-3"}`}>
-                {group.map((item, i) => {
-                  const Icon = APP_ICONS[g * 3 + i] ?? AppWindow;
-                  return (
-                    <li key={item} className="ix-glass flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold shadow-ix-sm">
-                      <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand-text">
-                        <Icon className="size-4.5" aria-hidden="true" />
-                      </span>
-                      {item}
-                    </li>
-                  );
-                })}
-              </ul>
-            ))}
-          </div>
-        </div>
-      </Section>
-
       {/* Build your IX team */}
       <Section id="build" className="space-y-8">
         <Intro eyebrow={w.build.eyebrow} title={w.build.title} body={w.build.body} />
@@ -175,23 +110,6 @@ export default async function HomePage({ params }: LocaleParams) {
           labels={{ goals: w.build.goalsLabel, recommended: w.build.recommended, cta: w.build.cta }}
           ctaHref={`/${locale}/assessment`}
         />
-      </Section>
-
-      {/* IX Command */}
-      <Section id="command" className="grid gap-10 lg:grid-cols-[25rem_1fr] lg:items-center">
-        <div className="space-y-5">
-          <Eyebrow>{w.command.eyebrow}</Eyebrow>
-          <Heading>
-            <span className="block">{w.command.line1}</span>
-            <span className="ix-gradient-text block lg:whitespace-nowrap">{w.command.accent}</span>
-          </Heading>
-          <p className="text-lg text-pretty text-muted">{w.command.body}</p>
-          <Link href={`/${locale}/platform`} className={buttonClass("secondary", "lg")}>
-            {w.command.cta}
-            <ArrowRight className="size-4.5 rtl:rotate-180" aria-hidden="true" />
-          </Link>
-        </div>
-        <CommandPreview t={t} />
       </Section>
 
       {/* IX Guard */}

@@ -70,3 +70,19 @@ const cover = await sharp(path.join(source, "IX TEAM CITY COVER.webp"))
   .toBuffer({ resolveWithObject: true });
 await sharp(cover.data).toFile(path.join(root, "apps/web/public/hero-cover.webp"));
 console.warn(`cover: ${cover.info.width}x${cover.info.height}, ${(cover.data.length / 1024).toFixed(0)} KB`);
+
+// Official logo lockups, exactly as designed (never redrawn). Navy is for light surfaces,
+// white for dark ones; the mark is the bolt alone.
+const LOGOS = { "logo-navy": "InstanIX NAVY.png", "logo-white": "InstanIX WHITE.png", mark: "ICON.png" };
+for (const app of ["apps/web", "apps/command"]) {
+  const dir = path.join(root, app, "public", "brand");
+  await mkdir(dir, { recursive: true });
+  for (const [name, file] of Object.entries(LOGOS)) {
+    await sharp(path.join(root, "IX-LOGO", file))
+      .trim()
+      .resize({ height: name === "mark" ? 256 : 220 })
+      .webp({ quality: 92, alphaQuality: 100 })
+      .toFile(path.join(dir, `${name}.webp`));
+  }
+}
+console.warn("logo: navy, white and mark lockups");

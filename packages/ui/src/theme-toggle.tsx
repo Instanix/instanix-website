@@ -46,7 +46,7 @@ export function ThemeToggle({
       onClick={toggle}
       aria-label={next === "dark" ? labels.useDark : labels.useLight}
       className={cn(
-        "grid size-10 place-items-center rounded-xl border border-line bg-surface text-fg-soft transition-colors hover:border-brand hover:text-brand-text",
+        "ix-btn-glass grid size-10 place-items-center rounded-full text-fg-soft transition-[border-color,background-color,color,transform] duration-300 hover:text-brand-text",
         className,
       )}
     >

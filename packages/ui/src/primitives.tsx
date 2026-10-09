@@ -5,18 +5,9 @@ export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("rounded-ix border border-line bg-surface shadow-ix", className)} {...props} />;
 }
 
+/** The small line above a heading. Plain text on purpose: no pill, no dot. */
 export function Eyebrow({ className, children }: { readonly className?: string; readonly children: ReactNode }) {
-  return (
-    <p
-      className={cn(
-        "inline-flex items-center gap-2 rounded-full bg-brand-soft px-3 py-1 text-xs font-bold tracking-wide text-brand-text uppercase",
-        className,
-      )}
-    >
-      <span aria-hidden="true" className="size-1.5 rounded-full bg-brand" />
-      {children}
-    </p>
-  );
+  return <p className={cn("text-sm font-semibold text-brand-text", className)}>{children}</p>;
 }
 
 export type BadgeTone = "neutral" | "brand" | "success" | "warning" | "danger";

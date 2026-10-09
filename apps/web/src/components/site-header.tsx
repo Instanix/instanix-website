@@ -22,10 +22,10 @@ export function SiteHeader({ locale, t, path = "" }: { readonly locale: Locale; 
   const n = t.web.nav;
 
   return (
-    <header className="sticky top-0 z-40 px-3 pt-3 sm:px-6">
-      <div className="ix-glass mx-auto flex h-16 max-w-7xl items-center gap-3 rounded-2xl px-3 shadow-ix sm:px-5">
+    <header className="sticky top-0 z-40 px-3 pt-4 sm:px-6">
+      <div className="ix-header-bar mx-auto flex h-16 max-w-6xl items-center gap-3 rounded-full ps-5 pe-3">
         <Link href={`/${locale}`} aria-label={t.common.homeLink} className="rounded-lg">
-          <Logo className="text-base sm:text-lg" />
+          <Logo className="text-[0.95rem] sm:text-base" />
         </Link>
 
         <nav aria-label={t.common.primaryNav} className="ms-4 hidden items-center lg:flex">
@@ -33,7 +33,7 @@ export function SiteHeader({ locale, t, path = "" }: { readonly locale: Locale; 
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-lg px-2.5 py-2 text-sm font-medium whitespace-nowrap text-fg-soft transition-colors hover:bg-surface-2 hover:text-fg"
+              className="rounded-full px-3 py-2 text-sm font-medium whitespace-nowrap text-fg-soft transition-colors duration-300 hover:bg-[color-mix(in_srgb,var(--ix-brand)_12%,transparent)] hover:text-fg"
             >
               {link.label}
             </Link>
@@ -46,7 +46,7 @@ export function SiteHeader({ locale, t, path = "" }: { readonly locale: Locale; 
             hrefLang={other}
             lang={other}
             aria-label={t.common.switchLanguageLabel}
-            className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-line bg-surface px-3 text-sm font-semibold text-fg-soft transition-colors hover:border-brand hover:text-brand-text"
+            className="ix-btn-glass inline-flex h-10 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold text-fg-soft transition-[border-color,background-color,color,transform] duration-300 hover:text-brand-text"
           >
             <Globe className="size-4" aria-hidden="true" />
             <span>{t.common.switchLanguage}</span>
@@ -58,7 +58,7 @@ export function SiteHeader({ locale, t, path = "" }: { readonly locale: Locale; 
         </div>
       </div>
       {/* Small screens: the page links scroll horizontally under the bar. */}
-      <nav aria-label={t.common.primaryNav} className="mx-auto mt-2 flex max-w-7xl gap-1 overflow-x-auto px-1 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden">
+      <nav aria-label={t.common.primaryNav} className="mx-auto mt-2 flex max-w-6xl gap-1 overflow-x-auto px-1 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden">
         {siteLinks(locale, t).map((link) => (
           <Link
             key={link.href}

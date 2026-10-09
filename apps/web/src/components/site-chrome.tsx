@@ -6,21 +6,24 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { BOOKING_URL, CONTACT_EMAIL, WHATSAPP_NUMBER } from "@/lib/env";
 import { leadsEnabled } from "@/lib/server/leads";
-import { SmoothScroll } from "./motion";
+import { MotionRoot } from "./motion";
 import { SiteHeader, siteLinks } from "./site-header";
 import { ZeusLauncher } from "./zeus-launcher";
 
 export function Section({
   id,
   className = "",
+  reveal = true,
   children,
 }: {
   readonly id?: string;
   readonly className?: string;
+  /** Fade the section in the first time it scrolls into view. */
+  readonly reveal?: boolean;
   readonly children: ReactNode;
 }) {
   return (
-    <section id={id} className={`mx-auto w-full max-w-7xl px-5 sm:px-8 ${className}`}>
+    <section id={id} className={`mx-auto w-full max-w-7xl px-5 sm:px-8 ${reveal ? "ix-reveal" : ""} ${className}`}>
       {children}
     </section>
   );
@@ -75,7 +78,7 @@ export function PageHero({
         className="absolute inset-0 -z-10 bg-[radial-gradient(60rem_30rem_at_75%_20%,color-mix(in_srgb,var(--ix-brand)_24%,transparent),transparent_70%)]"
       />
       <div aria-hidden="true" className="ix-grid-lines absolute inset-0 -z-10" />
-      <Section className="grid items-center gap-8 pt-12 pb-4 sm:pt-16 lg:grid-cols-[1fr_auto] lg:gap-12">
+      <Section reveal={false} className="grid items-center gap-8 pt-12 pb-4 sm:pt-16 lg:grid-cols-[1fr_auto] lg:gap-12">
         <div className="max-w-2xl space-y-5">
           <Eyebrow>{eyebrow}</Eyebrow>
           <Heading as="h1">{title}</Heading>
@@ -181,7 +184,7 @@ export function SiteChrome({
 }) {
   return (
     <>
-      <SmoothScroll />
+      <MotionRoot />
       <SiteHeader locale={locale} t={t} path={path} />
       <main id="main" className="flex flex-col gap-20 pb-24 sm:gap-28">
         {children}
