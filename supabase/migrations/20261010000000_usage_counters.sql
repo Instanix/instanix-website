@@ -7,7 +7,7 @@
 -- executed by the service role. The browser can never read or change a counter.
 -- Privacy: `bucket` never holds a raw IP address. The server sends a keyed hash.
 
-create table public.usage_counters (
+create table if not exists public.usage_counters (
   bucket text not null check (char_length(bucket) between 1 and 120),
   window_start timestamptz not null,
   count integer not null default 0 check (count >= 0),
@@ -41,7 +41,7 @@ begin
 
   -- Housekeeping on a small share of calls keeps the table from growing without bound.
   if random() < 0.02 then
-    delete from public.usage_counters where window_start < now() - interval '3 days';
+    delete from public.usage_counters where window_start < now() - interval '40 days';
   end if;
 
   return query

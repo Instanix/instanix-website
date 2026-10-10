@@ -1,4 +1,7 @@
-import { getAgent } from "@ix/agents";
+import { AGENT_KEYS, getAgent, type AgentKey } from "@ix/agents";
+import { AgentsOffice } from "@/components/agents-office";
+import { BOOKING_URL } from "@/lib/env";
+import { assertOffice } from "@/lib/office";
 import { AgentFigure, buttonClass, Card } from "@ix/ui";
 import { ArrowRight, BarChart3, BookOpen, LayoutDashboard, Plug, ShieldCheck, Users, Workflow, type LucideIcon } from "lucide-react";
 import { GuardGrid, HowBand } from "@/components/blocks";
@@ -16,6 +19,7 @@ export function generateMetadata({ params }: LocaleParams) {
 export default async function PlatformPage({ params }: LocaleParams) {
   const { locale, t } = await loadPage(params);
   const p = t.web.platformPage;
+  assertOffice(t.web.office);
 
   return (
     <SiteChrome locale={locale} t={t} path="/platform">
@@ -35,6 +39,17 @@ export default async function PlatformPage({ params }: LocaleParams) {
           <ArrowRight className="size-4.5 rtl:rotate-180" aria-hidden="true" />
         </Link>
       </PageHero>
+
+      {/* The office: every agent at work, live */}
+      <Section id="office" className="space-y-8">
+        <Intro eyebrow={t.web.office.eyebrow} title={t.web.office.title} body={t.web.office.body} />
+        <AgentsOffice
+          locale={locale}
+          copy={t.web.office}
+          roles={Object.fromEntries(AGENT_KEYS.map((key) => [key, t.agents[key].role])) as Record<AgentKey, string>}
+          bookingHref={BOOKING_URL ?? `/${locale}/assessment`}
+        />
+      </Section>
 
       <Section>
         <HowBand t={t} />

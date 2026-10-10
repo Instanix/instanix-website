@@ -79,7 +79,7 @@ export const ASSESSMENT_JSON_SCHEMA: Record<string, unknown> = {
 };
 
 /** One line per agent for the prompt. `Record<AgentKey, …>` keeps it complete at compile time. */
-const AGENT_BRIEFS: Record<AgentKey, string> = {
+export const AGENT_BRIEFS: Record<AgentKey, string> = {
   zeus: "Chief Orchestrator — plans the work, delegates to other agents, escalates to people",
   athena: "Strategy & Intelligence — research, analysis, planning",
   hephaestus: "Automation Engineer — workflows, APIs, integration logic",

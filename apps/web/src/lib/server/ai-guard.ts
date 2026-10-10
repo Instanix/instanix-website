@@ -10,7 +10,7 @@ import { SITE_URL } from "@/lib/env";
  * A request must pass, in order:
  *   1. the same-origin check (only this website's own pages may call the endpoint),
  *   2. the kill switch for the optional demos,
- *   3. a per-visitor hourly limit,
+ *   3. a per-visitor limit (hourly for the assessment; one short trial a month for live chat),
  *   4. a daily limit for the feature,
  *   5. a daily limit for all AI features together.
  * Counts live in the database when it is configured, so they survive restarts and are
@@ -23,10 +23,17 @@ export type AiFeature = "assessment" | "chat";
 const HOUR = 60 * 60;
 const DAY = 24 * HOUR;
 
-/** Defaults sized for a marketing site. Each can be lowered or raised with an environment variable. */
-const LIMITS: Record<AiFeature, { readonly perVisitorHour: number; readonly perDay: number }> = {
-  assessment: { perVisitorHour: 5, perDay: 100 },
-  chat: { perVisitorHour: 18, perDay: 600 },
+/** The longest window the usage counter accepts. */
+const TRIAL_WINDOW_DAYS = 30;
+
+/**
+ * Defaults sized for a marketing site. Each can be lowered or raised with an environment variable.
+ * Live chat is a trial: a visitor gets a handful of messages once per window, shared by every
+ * chat on the site, and is then offered a consultation instead.
+ */
+const LIMITS: Record<AiFeature, { readonly perVisitor: number; readonly visitorWindowSeconds: number; readonly perDay: number }> = {
+  assessment: { perVisitor: 5, visitorWindowSeconds: HOUR, perDay: 100 },
+  chat: { perVisitor: 6, visitorWindowSeconds: TRIAL_WINDOW_DAYS * DAY, perDay: 600 },
 };
 const TOTAL_PER_DAY = 800;
 
@@ -40,16 +47,22 @@ function limitFromEnv(name: string, fallback: number): number {
 
 function limitsFor(feature: AiFeature) {
   const key = feature.toUpperCase();
+  const base = LIMITS[feature];
+  const trialDays = Math.min(TRIAL_WINDOW_DAYS, Math.max(1, limitFromEnv("AI_LIMIT_CHAT_TRIAL_DAYS", TRIAL_WINDOW_DAYS)));
   return {
-    perVisitorHour: limitFromEnv(`AI_LIMIT_${key}_PER_VISITOR_HOUR`, LIMITS[feature].perVisitorHour),
-    perDay: limitFromEnv(`AI_LIMIT_${key}_PER_DAY`, LIMITS[feature].perDay),
+    perVisitor:
+      feature === "chat"
+        ? limitFromEnv("AI_LIMIT_CHAT_TRIAL_MESSAGES", base.perVisitor)
+        : limitFromEnv(`AI_LIMIT_${key}_PER_VISITOR_HOUR`, base.perVisitor),
+    visitorWindowSeconds: feature === "chat" ? trialDays * DAY : base.visitorWindowSeconds,
+    perDay: limitFromEnv(`AI_LIMIT_${key}_PER_DAY`, base.perDay),
     totalPerDay: limitFromEnv("AI_LIMIT_TOTAL_PER_DAY", TOTAL_PER_DAY),
   };
 }
 
 export type GuardResult =
   | { readonly ok: true }
-  | { readonly ok: false; readonly code: "forbidden" | "disabled" | "rate_limited"; readonly status: number; readonly retryAfterSeconds?: number };
+  | { readonly ok: false; readonly code: "forbidden" | "disabled" | "trial_used" | "rate_limited"; readonly status: number; readonly retryAfterSeconds?: number };
 
 // ---------- 1. Same origin ----------
 
@@ -135,13 +148,15 @@ export async function guardAi(request: NextRequest, feature: AiFeature): Promise
   const limits = limitsFor(feature);
   const checks: readonly (readonly [string, number, number])[] = [
     // The visitor is checked first, so one abusive client cannot use up the shared daily budget.
-    [`${feature}:visitor:${visitorLabel(request)}`, limits.perVisitorHour, HOUR],
+    [`${feature}:visitor:${visitorLabel(request)}`, limits.perVisitor, limits.visitorWindowSeconds],
     [`${feature}:day`, limits.perDay, DAY],
     ["all:day", limits.totalPerDay, DAY],
   ];
   for (const [bucket, limit, windowSeconds] of checks) {
     const decision = await consume(bucket, limit, windowSeconds);
     if (!decision.allowed) {
+      // The visitor has had their live-chat trial: the page offers a consultation instead.
+      if (feature === "chat" && bucket.includes(":visitor:")) return { ok: false, code: "trial_used", status: 429 };
       if (!bucket.includes(":visitor:")) console.error(`[ai-guard] daily cap reached for "${bucket}"`);
       return { ok: false, code: "rate_limited", status: 429, retryAfterSeconds: decision.retryAfterSeconds };
     }

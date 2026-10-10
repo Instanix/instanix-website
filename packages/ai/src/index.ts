@@ -28,3 +28,4 @@ export {
   type DemoChatResult,
   type DemoChatScenario,
 } from "./demo-chat";
+export { officeChatInputSchema, runOfficeChat, type OfficeChatInput } from "./office-chat";

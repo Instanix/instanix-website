@@ -148,7 +148,7 @@ export function LiveDemo({
         body: JSON.stringify({ locale, scenario, messages }),
       });
       if (!response.ok) {
-        setProblem(response.status === 429 ? copy.live.rateLimited : response.status === 503 ? copy.live.unavailable : copy.live.error);
+        setProblem(response.status === 429 ? copy.live.limit : response.status === 503 ? copy.live.unavailable : copy.live.error);
         return;
       }
       const data: unknown = await response.json();

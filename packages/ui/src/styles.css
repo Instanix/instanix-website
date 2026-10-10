@@ -753,3 +753,25 @@ html[lang="ar"] :is(h1, h2, h3, h4):not([dir="ltr"]) {
   }
 }
 
+
+/* The IX mark at the heart of the office: a slow neon heartbeat. */
+@keyframes ix-heartbeat {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 4px rgb(0 200 255 / 0.55));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 18px rgb(0 200 255 / 0.95));
+    transform: scale(1.07);
+  }
+}
+.ix-office-mark {
+  animation: ix-heartbeat 2.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ix-office-mark {
+    animation: none;
+    filter: drop-shadow(0 0 10px rgb(0 200 255 / 0.8));
+  }
+}

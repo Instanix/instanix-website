@@ -1,5 +1,5 @@
 import "server-only";
-import { AiError, createOpenAiProvider, demoChatInputSchema, runDemoChat } from "@ix/ai";
+import { AiError, createOpenAiProvider, officeChatInputSchema, runOfficeChat } from "@ix/ai";
 import { NextResponse, type NextRequest } from "next/server";
 import { guardAi } from "@/lib/server/ai-guard";
 
@@ -10,6 +10,7 @@ const MAX_BODY_BYTES = 12 * 1024;
 const TIMEOUT_MS = 25_000;
 
 // Abuse and cost controls live in one place: see lib/server/ai-guard.
+// A visitor gets one short trial of the live chat; after that the site offers a consultation.
 
 type ErrorCode = "invalid_input" | "forbidden" | "trial_used" | "rate_limited" | "not_configured" | "upstream_error";
 
@@ -17,7 +18,7 @@ function fail(code: ErrorCode, status: number, correlationId: string, headers?: 
   return NextResponse.json({ error: { code }, correlationId }, { status, headers: { "Cache-Control": "no-store", ...headers } });
 }
 
-/** One reply from the "try the agent" demo. The conversation is never stored. */
+/** One reply from an IX agent in the office demo. The conversation is never stored. */
 export async function POST(request: NextRequest) {
   const correlationId = crypto.randomUUID();
 
@@ -31,13 +32,13 @@ export async function POST(request: NextRequest) {
     return fail("invalid_input", 400, correlationId);
   }
 
-  const input = demoChatInputSchema.safeParse(body);
+  const input = officeChatInputSchema.safeParse(body);
   if (!input.success) return fail("invalid_input", 400, correlationId);
 
   const apiKey = process.env.OPENAI_API_KEY;
   const model = process.env.OPENAI_MODEL;
   if (!apiKey || !model) {
-    console.error(`[demo-chat ${correlationId}] not configured: OPENAI_API_KEY and OPENAI_MODEL are required`);
+    console.error(`[office-chat ${correlationId}] not configured: OPENAI_API_KEY and OPENAI_MODEL are required`);
     return fail("not_configured", 503, correlationId);
   }
 
@@ -50,16 +51,16 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { reply, usage } = await runDemoChat(createOpenAiProvider({ apiKey }), input.data, {
+    const { reply, usage } = await runOfficeChat(createOpenAiProvider({ apiKey }), input.data, {
       model,
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     // Usage only: never the visitor's text or the generated reply.
-    console.warn(`[demo-chat ${correlationId}] ok model=${model} in=${usage.inputTokens} out=${usage.outputTokens}`);
+    console.warn(`[office-chat ${correlationId}] ok agent=${input.data.agent} model=${model} in=${usage.inputTokens} out=${usage.outputTokens}`);
     return NextResponse.json({ reply, correlationId }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const detail = error instanceof AiError ? `${error.code}${error.status ? ` http=${error.status}` : ""}` : "unexpected";
-    console.error(`[demo-chat ${correlationId}] failed: ${detail}`);
+    console.error(`[office-chat ${correlationId}] failed: ${detail}`);
     return fail("upstream_error", 502, correlationId);
   }
 }
