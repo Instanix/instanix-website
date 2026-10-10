@@ -638,7 +638,7 @@ export const en = {
         tools: "Tools you use today (optional)",
         toolsPlaceholder: "e.g. WhatsApp Business, Excel, Odoo, HubSpot",
         submit: "Get My Assessment",
-        consent: "Your answers are sent to our AI provider (OpenAI) to generate this assessment. We store them only if you ask for the full report and leave your contact details. Please don’t include confidential data.",
+        consent: "Your answers are sent to an external AI provider to generate this assessment. We store them only if you ask for the full report and leave your contact details. Please don’t include confidential data.",
       },
       industries: {
         real_estate: "Real estate",
@@ -884,7 +884,7 @@ export const en = {
             { q: "How is an AI agent different from a chatbot?", a: "A chatbot answers messages. An agent pursues a task: it reads context, chooses actions, uses tools and reports the result. It can also hand work to another agent or to a person." },
             { q: "Can an agent act without our approval?", a: "Only for the actions you allow. Sending external messages, payments, contracts and deleting data stay behind human approval by default." },
             { q: "Does the agent see our passwords or API keys?", a: "No. Credentials are held by the platform and are never shown to the model." },
-            { q: "Which AI models do you use?", a: "We choose the model for each task based on quality, cost and speed, and keep the provider replaceable. The ZEUS assessment on this site runs on OpenAI." },
+            { q: "Which AI models do you use?", a: "We choose the model for each task based on quality, cost and speed, and keep the provider replaceable." },
           ],
         },
         systems: {
@@ -941,7 +941,7 @@ export const en = {
         { q: "Which countries do you serve?", a: "We serve companies in the UAE, Qatar, Saudi Arabia, the wider Gulf and Egypt, and we work remotely with teams elsewhere." },
         { q: "Do you work in Arabic?", a: "Yes. We work and build in both Arabic and English." },
         { q: "Is the ZEUS assessment really free?", a: "Yes. It is a preliminary, AI-generated assessment. It is not a quote, and a consultant reviews every project before any proposal." },
-        { q: "What happens to what I type in the assessment?", a: "Your answers are sent to our AI provider, OpenAI, to generate the assessment. We store them only if you ask for the full report and leave your contact details, so our team can follow up." },
+        { q: "What happens to what I type in the assessment?", a: "Your answers are sent to an external AI provider to generate the assessment. We store them only if you ask for the full report and leave your contact details, so our team can follow up." },
         { q: "How much does a project cost?", a: "It depends on the scope. We prepare a proposal after a free consultation, once we understand the process and the systems involved." },
         { q: "How do we start?", a: "Describe your challenge to ZEUS for a preliminary assessment, or book a free consultation with our team." },
       ],
@@ -949,22 +949,22 @@ export const en = {
     privacyPage: {
       eyebrow: "Privacy",
       title: "Privacy Policy",
-      updated: "Last updated: 11 October 2026",
+      updated: "Last updated: 10 October 2026",
       sections: [
         { title: "Who we are", body: ["This website is operated by Instanix. This policy explains what information the website handles and why."] },
         {
           title: "ZEUS assessment",
           body: [
-            "When you use the ZEUS assessment, the answers you enter (industry, company size, country, your description and the tools you mention) are sent to our AI provider, OpenAI, to generate the assessment.",
-            "If you ask for the full report, we store your name, your WhatsApp number or email, your answers and the generated assessment, with your consent, so our team can contact you about your project. To prepare our reply, your answers and the assessment are sent to OpenAI once more, without your name, phone number or email. A person on our team reads and sends every message; nothing is sent to you automatically. If you do not ask for it, we do not store your answers or the assessment.",
+            "When you use the ZEUS assessment, the answers you enter (industry, company size, country, your description and the tools you mention) are sent to an external AI provider to generate the assessment.",
+            "If you ask for the full report, we store your name, your WhatsApp number or email, your answers and the generated assessment, with your consent, so our team can contact you about your project. To prepare our reply, your answers and the assessment are sent to the AI provider once more, without your name, phone number or email. A person on our team reads and sends every message; nothing is sent to you automatically. If you do not ask for it, we do not store your answers or the assessment.",
             "We never write your answers to our logs. Please do not enter confidential information in the description.",
           ],
         },
         {
           title: "Live agent demo",
           body: [
-            "When you chat with the live agent demo, the messages you type are sent to our AI provider, OpenAI, to generate the replies. The business in the demo is fictional and its data is sample data.",
-            "We do not store the conversation and we never write it to our logs. OpenAI processes it under its own terms. Please do not enter personal or confidential information in the chat.",
+            "When you chat with the live agent demo, the messages you type are sent to an external AI provider to generate the replies. The business in the demo is fictional and its data is sample data.",
+            "We do not store the conversation and we never write it to our logs. The provider processes it under its own terms. Please do not enter personal or confidential information in the chat.",
             "To give each visitor one free trial of the live chat, we keep a keyed, non-reversible code derived from your IP address for up to 40 days. We do not store the address itself.",
           ],
         },
@@ -996,7 +996,7 @@ export const en = {
             "If your browser sends a “Do Not Track” or “Global Privacy Control” signal, nothing is counted.",
           ],
         },
-        { title: "Sharing", body: ["We share information only with the providers named above and with our hosting provider, and only as needed to run the website. We do not sell personal information."] },
+        { title: "Sharing", body: ["We share information only with the providers described above and with our hosting provider, and only as needed to run the website. We do not sell personal information."] },
         { title: "Your choices", body: ["You can ask what information we hold about you, or ask us to correct or delete it, by emailing info@instanix.ae."] },
         { title: "Changes", body: ["If this policy changes, we will update this page and the date above."] },
       ],

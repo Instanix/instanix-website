@@ -807,3 +807,47 @@ html[lang="ar"] :is(h1, h2, h3, h4):not([dir="ltr"]) {
     animation: none;
   }
 }
+
+/* ---------- Loader: the bolt alone ---------- */
+/* Pure CSS, so it needs no script and can never get stuck: it covers the page for a moment
+   on a full load, then fades away and stops catching clicks. */
+@keyframes ix-loader-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@keyframes ix-loader-pulse {
+  0%,
+  100% {
+    transform: scale(0.94);
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    transform: scale(1.04);
+    filter: drop-shadow(0 0 22px color-mix(in srgb, var(--ix-cyan) 70%, transparent));
+  }
+}
+.ix-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--ix-bg);
+  pointer-events: none;
+  animation: ix-loader-out 0.45s ease 0.5s both;
+}
+.ix-loader-mark {
+  width: 4.5rem;
+  height: auto;
+  animation: ix-loader-pulse 1s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ix-loader {
+    display: none;
+  }
+  .ix-loader-mark {
+    animation: none;
+  }
+}

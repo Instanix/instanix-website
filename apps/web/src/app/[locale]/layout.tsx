@@ -95,6 +95,10 @@ export default async function RootLayout({ children, params }: Props) {
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="ix-backdrop font-sans text-fg antialiased">
+        {/* Opening loader: the bolt alone. CSS only; it fades by itself and never blocks the page. */}
+        <div aria-hidden="true" className="ix-loader">
+          <img src="/brand/mark.webp" alt="" width={223} height={256} className="ix-loader-mark" />
+        </div>
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-on-primary"
