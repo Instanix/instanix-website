@@ -753,8 +753,3 @@ html[lang="ar"] :is(h1, h2, h3, h4):not([dir="ltr"]) {
   }
 }
 
-/* Live microphone: the halo follows the speaker's level (--level, 0 to 1). */
-.ix-mic-live {
-  box-shadow: 0 0 0 calc(3px + var(--level, 0) * 14px) color-mix(in srgb, var(--ix-danger) 35%, transparent);
-  transition: box-shadow 0.08s linear;
-}

@@ -3,22 +3,11 @@
 import { getAgent, type AgentKey } from "@ix/agents";
 import type { Dictionary, Locale } from "@ix/i18n";
 import { buttonClass, Eyebrow } from "@ix/ui";
-import { ArrowRight, ChevronDown, Mic, Square } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { saveAssessmentDraft } from "@/lib/assessment-draft";
 import { prefersReducedMotion } from "./motion";
-
-/** Longest clip sent for transcription. Mirrors the server limit in @ix/ai. */
-const MAX_RECORD_MS = 20_000;
-/** Stop this long after the speaker goes quiet. */
-const SILENCE_AFTER_SPEECH_MS = 1_600;
-/** Give up if nothing is heard at all for this long. */
-const NO_SPEECH_MS = 6_000;
-/** Loudness (0 to 1) above which the microphone is hearing a voice rather than room noise. */
-const SPEECH_LEVEL = 0.035;
-
-type VoiceState = "idle" | "starting" | "recording" | "transcribing";
 
 /**
  * The cast on stage, front to back. `x` is the offset from center in percent of the
@@ -44,112 +33,6 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
   const router = useRouter();
   const sectionRef = useRef<HTMLElement>(null);
   const [draft, setDraft] = useState("");
-  const [canListen, setCanListen] = useState(false);
-  const [voice, setVoice] = useState<VoiceState>("idle");
-  const [voiceProblem, setVoiceProblem] = useState<string | null>(null);
-  const recorderRef = useRef<MediaRecorder | null>(null);
-  const micRef = useRef<HTMLButtonElement>(null);
-  const listening = voice === "recording";
-
-  // The microphone only appears where the browser can record.
-  useEffect(() => {
-    setCanListen(typeof MediaRecorder !== "undefined" && Boolean(navigator.mediaDevices?.getUserMedia));
-    return () => {
-      if (recorderRef.current?.state === "recording") recorderRef.current.stop();
-    };
-  }, []);
-
-  async function transcribe(clip: Blob) {
-    setVoice("transcribing");
-    try {
-      const response = await fetch(`/api/v1/transcribe?locale=${locale}`, {
-        method: "POST",
-        headers: { "Content-Type": clip.type || "audio/webm" },
-        body: clip,
-      });
-      const data: unknown = response.ok ? await response.json() : null;
-      const text = typeof data === "object" && data !== null && "text" in data && typeof data.text === "string" ? data.text : "";
-      if (text) setDraft(text.slice(0, 300));
-      else setVoiceProblem(h.voiceError);
-    } catch {
-      setVoiceProblem(h.voiceError);
-    } finally {
-      setVoice("idle");
-    }
-  }
-
-  async function toggleVoice() {
-    if (voice === "transcribing" || voice === "starting") return;
-    if (voice === "recording") {
-      recorderRef.current?.stop();
-      return;
-    }
-    setVoiceProblem(null);
-    // "starting" covers the permission prompt, so a second tap cannot open a second recorder.
-    setVoice("starting");
-    let stream: MediaStream;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
-    } catch {
-      setVoiceProblem(h.voiceDenied);
-      setVoice("idle");
-      return;
-    }
-
-    const recorder = new MediaRecorder(stream);
-    const chunks: Blob[] = [];
-    // Listen to the level while recording: it drives the meter, stops the clip when the
-    // speaker pauses, and tells us whether anything was said at all.
-    const audio = new AudioContext();
-    const analyser = audio.createAnalyser();
-    analyser.fftSize = 1024;
-    audio.createMediaStreamSource(stream).connect(analyser);
-    const samples = new Uint8Array(analyser.fftSize);
-    const startedAt = performance.now();
-    let heardAt = 0;
-    let frame = 0;
-
-    const watch = () => {
-      analyser.getByteTimeDomainData(samples);
-      let sum = 0;
-      for (const sample of samples) sum += ((sample - 128) / 128) ** 2;
-      const level = Math.sqrt(sum / samples.length);
-      micRef.current?.style.setProperty("--level", Math.min(1, level * 6).toFixed(3));
-      const now = performance.now();
-      if (level > SPEECH_LEVEL) heardAt = now;
-      const quietAfterSpeech = heardAt > 0 && now - heardAt > SILENCE_AFTER_SPEECH_MS;
-      const neverSpoke = heardAt === 0 && now - startedAt > NO_SPEECH_MS;
-      if (quietAfterSpeech || neverSpoke || now - startedAt > MAX_RECORD_MS) {
-        if (recorder.state === "recording") recorder.stop();
-        return;
-      }
-      frame = requestAnimationFrame(watch);
-    };
-
-    recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) chunks.push(event.data);
-    };
-    recorder.onstop = () => {
-      cancelAnimationFrame(frame);
-      micRef.current?.style.removeProperty("--level");
-      // Release the microphone as soon as the clip is complete.
-      for (const track of stream.getTracks()) track.stop();
-      void audio.close();
-      const clip = new Blob(chunks, { type: recorder.mimeType });
-      // A clip with no voice in it is never sent: there is nothing to transcribe.
-      if (heardAt === 0 || clip.size === 0) {
-        setVoiceProblem(h.voiceSilent);
-        setVoice("idle");
-        return;
-      }
-      void transcribe(clip);
-    };
-    recorderRef.current = recorder;
-    setVoice("recording");
-    recorder.start();
-    frame = requestAnimationFrame(watch);
-  }
-
   // The stage follows the pointer and opens up as the page scrolls. Both write CSS
   // variables, so React never re-renders for motion.
   useEffect(() => {
@@ -227,25 +110,9 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
               onChange={(event) => setDraft(event.currentTarget.value)}
               maxLength={300}
               autoComplete="off"
-              placeholder={listening ? h.voiceListening : voice === "transcribing" ? h.voiceTranscribing : h.promptPlaceholder}
+              placeholder={h.promptPlaceholder}
               className="h-12 min-w-0 flex-1 bg-transparent text-base text-fg outline-none placeholder:text-muted"
             />
-            {canListen ? (
-              <button
-                type="button"
-                ref={micRef}
-                onClick={() => void toggleVoice()}
-                disabled={voice === "transcribing" || voice === "starting"}
-                aria-pressed={listening}
-                aria-label={listening ? h.voiceStop : h.voiceStart}
-                title={listening ? h.voiceStop : h.voiceStart}
-                className={`grid size-12 shrink-0 place-items-center rounded-full transition-colors duration-300 ${
-                  listening ? "ix-mic-live bg-danger text-white" : "text-fg-soft hover:bg-[color-mix(in_srgb,var(--ix-brand)_12%,transparent)] hover:text-brand-text"
-                }`}
-              >
-                {listening ? <Square className="size-4" aria-hidden="true" /> : <Mic className="size-5" aria-hidden="true" />}
-              </button>
-            ) : null}
             <button
               type="submit"
               className={buttonClass("primary", "md", "h-12 shrink-0")}
@@ -268,11 +135,6 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
             ))}
           </ul>
           <p className="mt-3 text-xs text-muted">{h.promptHint}</p>
-          {voiceProblem ? (
-            <p role="alert" className="ix-anim-in mt-2 text-sm font-semibold text-danger">
-              {voiceProblem}
-            </p>
-          ) : null}
         </form>
       </div>
 

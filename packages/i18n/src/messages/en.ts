@@ -145,13 +145,6 @@ export const en = {
       promptHint: "Free preliminary assessment from ZEUS.",
       promptExamples: ["Leads wait hours for a reply", "Invoices are entered by hand", "Bookings live in three places"],
       scroll: "Scroll to meet the team",
-      voiceStart: "Say it instead of typing",
-      voiceStop: "Stop listening",
-      voiceListening: "Listening… speak now, it stops when you pause",
-      voiceTranscribing: "Writing what you said…",
-      voiceDenied: "The microphone is blocked. Allow it in your browser, or type instead.",
-      voiceError: "We could not catch that. Try again, or type instead.",
-      voiceSilent: "We could not hear you. Check that the right microphone is selected, then try again.",
     },
     connect: {
       title: "IX works with the automation and AI tools you already use.",
@@ -888,13 +881,6 @@ export const en = {
           body: [
             "When you chat with the live agent demo, the messages you type are sent to our AI provider, OpenAI, to generate the replies. The business in the demo is fictional and its data is sample data.",
             "We do not store the conversation and we never write it to our logs. OpenAI processes it under its own terms. Please do not enter personal or confidential information in the chat.",
-          ],
-        },
-        {
-          title: "Voice input",
-          body: [
-            "If you use the microphone, your browser asks for your permission first. The short recording is sent to our server and then to OpenAI to be turned into text, which appears in the text box for you to check before you continue.",
-            "We do not store the recording or the text, and we never write them to our logs. OpenAI processes the recording under its own terms.",
           ],
         },
         {

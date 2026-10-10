@@ -18,7 +18,7 @@ import { SITE_URL } from "@/lib/env";
  * are enforced in memory rather than not at all.
  */
 
-export type AiFeature = "assessment" | "chat" | "transcribe";
+export type AiFeature = "assessment" | "chat";
 
 const HOUR = 60 * 60;
 const DAY = 24 * HOUR;
@@ -27,7 +27,6 @@ const DAY = 24 * HOUR;
 const LIMITS: Record<AiFeature, { readonly perVisitorHour: number; readonly perDay: number }> = {
   assessment: { perVisitorHour: 5, perDay: 100 },
   chat: { perVisitorHour: 18, perDay: 600 },
-  transcribe: { perVisitorHour: 10, perDay: 200 },
 };
 const TOTAL_PER_DAY = 800;
 
@@ -130,7 +129,7 @@ async function consume(bucket: string, limit: number, windowSeconds: number) {
 export async function guardAi(request: NextRequest, feature: AiFeature): Promise<GuardResult> {
   if (!isSameOrigin(request)) return { ok: false, code: "forbidden", status: 403 };
 
-  // The assessment is the site's core feature; the chat and voice demos can be switched off at once.
+  // The assessment is the site's core feature; the chat demo can be switched off at once.
   if (feature !== "assessment" && process.env.AI_DEMOS_DISABLED === "1") return { ok: false, code: "disabled", status: 503 };
 
   const limits = limitsFor(feature);

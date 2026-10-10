@@ -1,4 +1,4 @@
--- Usage counters for the public AI features (assessment, live demo chat, voice input).
+-- Usage counters for the public AI features (assessment, live demo chat).
 --
 -- The website spends money on every AI call, so the limits must survive a server restart
 -- and be shared by every server instance. Counting happens here, atomically, in one call.
