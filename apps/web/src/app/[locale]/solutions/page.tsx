@@ -45,7 +45,7 @@ export default async function SolutionsPage({ params }: LocaleParams) {
                 <li key={solution.key}>
                   <Card className="flex h-full flex-col gap-5 p-6 sm:p-7">
                     <div className="flex items-start gap-4">
-                      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,var(--ix-cyan),var(--ix-primary))] text-white shadow-ix-glow">
+                      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand-text">
                         <Icon className="size-6" aria-hidden="true" />
                       </span>
                       <div className="space-y-1">

@@ -48,7 +48,7 @@ export default async function PlatformPage({ params }: LocaleParams) {
             return (
               <li key={module.name}>
                 <Card className="h-full space-y-3 p-5 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-ix-lg">
-                  <span className="grid size-11 place-items-center rounded-xl bg-[linear-gradient(135deg,var(--ix-cyan),var(--ix-primary))] text-white shadow-ix-glow">
+                  <span className="grid size-11 place-items-center rounded-xl bg-brand-soft text-brand-text">
                     <Icon className="size-5" aria-hidden="true" />
                   </span>
                   <h3 dir="ltr" className="text-start text-lg font-extrabold tracking-tight rtl:text-end">

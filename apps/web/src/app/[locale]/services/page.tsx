@@ -1,5 +1,5 @@
 import { getAgent } from "@ix/agents";
-import { AgentFigure, buttonClass, Card } from "@ix/ui";
+import { AgentFigure, buttonClass } from "@ix/ui";
 import { ArrowRight, CircleCheck } from "lucide-react";
 import Link from "next/link";
 import { AgentStack } from "@/components/blocks";
@@ -41,47 +41,46 @@ export default async function ServicesPage({ params }: LocaleParams) {
           </Link>
         </PageHero>
 
-        <Section>
-          <ul className="grid gap-5 md:grid-cols-2">
-            {SERVICES.map(({ key, slug, icon: Icon, agents }) => {
+        <Section reveal={false}>
+          <ol className="space-y-5">
+            {SERVICES.map(({ key, slug, agents }, index) => {
               const copy = p.items[key];
               return (
-                <li key={key}>
-                  <Card className="flex h-full flex-col gap-5 p-6 sm:p-8">
-                    <span className="grid size-14 place-items-center rounded-2xl bg-[linear-gradient(135deg,var(--ix-cyan),var(--ix-primary))] text-white shadow-ix-glow">
-                      <Icon className="size-7" aria-hidden="true" />
-                    </span>
-                    <div className="space-y-2">
-                      <h2 className="text-2xl font-extrabold tracking-tight">{copy.title}</h2>
-                      <p className="text-muted">{copy.body}</p>
+                <li key={key} className="ix-reveal">
+                  <Link
+                    href={`/${locale}/services/${slug}`}
+                    className="ix-spot group relative grid gap-8 overflow-hidden rounded-[2rem] border border-line bg-surface p-7 shadow-ix sm:p-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center"
+                  >
+                    <div className="space-y-5">
+                      <p dir="ltr" className="font-mono text-sm font-bold text-brand-text rtl:text-end">
+                        {String(index + 1).padStart(2, "0")}
+                      </p>
+                      <h2 className="text-4xl leading-[1.05] font-extrabold tracking-tight text-balance sm:text-5xl">{copy.title}</h2>
+                      <p className="max-w-xl text-lg text-pretty text-fg-soft">{copy.body}</p>
+                      <span className="inline-flex items-center gap-2 text-sm font-bold text-brand-text">
+                        {t.web.serviceDetail.learnMore}
+                        <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1" aria-hidden="true" />
+                      </span>
                     </div>
-                    <ul className="space-y-2">
-                      {copy.points.map((point) => (
-                        <li key={point} className="flex items-start gap-2.5 text-sm font-semibold">
-                          <CircleCheck className="mt-0.5 size-4.5 shrink-0 text-brand-text" aria-hidden="true" />
-                          {point}
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-auto flex flex-wrap items-end justify-between gap-4 border-t border-line pt-4">
-                      <div className="space-y-2">
-                        <p className="text-xs font-extrabold tracking-widest text-fg-soft uppercase">{p.teamLabel}</p>
+                    <div className="space-y-5">
+                      <ul className="space-y-3">
+                        {copy.points.map((point) => (
+                          <li key={point} className="flex items-start gap-3 border-b border-line pb-3 text-base font-semibold last:border-0">
+                            <CircleCheck className="mt-0.5 size-5 shrink-0 text-brand-text" aria-hidden="true" />
+                            {point}
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="flex items-center justify-between gap-4">
+                        <p className="text-xs font-extrabold tracking-widest text-muted uppercase">{p.teamLabel}</p>
                         <AgentStack agents={agents} />
                       </div>
-                      <Link
-                        href={`/${locale}/services/${slug}`}
-                        aria-label={`${t.web.serviceDetail.learnMore}: ${copy.title}`}
-                        className={buttonClass("secondary", "sm")}
-                      >
-                        {t.web.serviceDetail.learnMore}
-                        <ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" />
-                      </Link>
                     </div>
-                  </Card>
+                  </Link>
                 </li>
               );
             })}
-          </ul>
+          </ol>
         </Section>
       </div>
     </SiteChrome>

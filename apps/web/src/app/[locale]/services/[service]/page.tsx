@@ -72,7 +72,7 @@ export default async function ServicePage({ params }: Props) {
         title={summary.title}
         body={summary.body}
         art={
-          <span className="mb-10 grid size-40 place-items-center rounded-[28%] bg-[linear-gradient(135deg,var(--ix-cyan),var(--ix-primary))] text-white shadow-ix-glow sm:size-52">
+          <span className="mb-10 grid size-40 place-items-center rounded-[28%] bg-brand-soft text-brand-text sm:size-52">
             <Icon className="size-20 sm:size-24" aria-hidden="true" />
           </span>
         }

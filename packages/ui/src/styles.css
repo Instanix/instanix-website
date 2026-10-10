@@ -666,3 +666,31 @@ html[lang="ar"] :is(h1, h2, h3, h4):not([dir="ltr"]) {
 .ix-range:active::-webkit-slider-thumb {
   transform: scale(1.15);
 }
+
+/* Every card carries a soft light under the pointer (no lift: most cards are not links). */
+.ix-card {
+  position: relative;
+  isolation: isolate;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+.ix-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(22rem 14rem at var(--sx, 50%) var(--sy, 0%), color-mix(in srgb, var(--ix-cyan) 12%, transparent), transparent 70%);
+  transition: opacity 0.4s ease;
+}
+.ix-card:hover {
+  border-color: color-mix(in srgb, var(--ix-brand) 35%, var(--ix-line));
+}
+.ix-card:hover::before {
+  opacity: 1;
+}
+/* Accent words on always-dark bands need the lighter brand tone. */
+.ix-on-ink .ix-gradient-text {
+  color: var(--ix-cyan);
+}

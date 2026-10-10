@@ -2,7 +2,7 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "./cn";
 
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("rounded-ix border border-line bg-surface shadow-ix", className)} {...props} />;
+  return <div className={cn("ix-card rounded-ix-lg border border-line bg-surface shadow-ix", className)} {...props} />;
 }
 
 /** The small line above a heading. Plain text on purpose: no pill, no dot. */

@@ -23,7 +23,7 @@ export function scrollToY(y: number): void {
 }
 
 /** Surfaces that light up under the pointer; they read the position from CSS variables. */
-const LIT = ".ix-header-bar, .ix-spot";
+const LIT = ".ix-header-bar, .ix-spot, .ix-card";
 
 /**
  * Page-wide motion, mounted once:

@@ -14,14 +14,14 @@ type CountryKey = keyof Copy["countries"];
  * Where each country sits on the stage, in percent. Positions follow the region's rough
  * geography; no borders are drawn.
  */
-const PLACES: readonly { key: CountryKey; x: number; y: number }[] = [
-  { key: "EG", x: 12, y: 44 },
-  { key: "KW", x: 55, y: 22 },
-  { key: "SA", x: 46, y: 54 },
-  { key: "BH", x: 64, y: 38 },
-  { key: "QA", x: 70, y: 48 },
-  { key: "AE", x: 82, y: 54 },
-  { key: "OM", x: 90, y: 72 },
+const PLACES: readonly { key: CountryKey; x: number; y: number; above?: boolean }[] = [
+  { key: "EG", x: 11, y: 46 },
+  { key: "KW", x: 53, y: 20, above: true },
+  { key: "SA", x: 42, y: 62 },
+  { key: "BH", x: 62, y: 36, above: true },
+  { key: "QA", x: 69, y: 52 },
+  { key: "AE", x: 83, y: 60, above: true },
+  { key: "OM", x: 91, y: 80 },
 ];
 
 /** Instanix is based here; the routes on the map fan out from it. */
@@ -72,12 +72,17 @@ export function GulfMap({
           {PLACES.map((place) => {
             const active = place.key === selected;
             return (
-              <li key={place.key} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${place.x}%`, top: `${place.y}%` }}>
+              <li
+                key={place.key}
+                // Shifted so the dot, not the label, sits on the point the routes lead to.
+                className={cn("absolute -translate-x-1/2", place.above ? "-translate-y-[calc(100%-0.625rem)]" : "-translate-y-2.5")}
+                style={{ left: `${place.x}%`, top: `${place.y}%` }}
+              >
                 <button
                   type="button"
                   onClick={() => setSelected(place.key)}
                   aria-pressed={active}
-                  className="group flex flex-col items-center gap-1.5"
+                  className={cn("group flex items-center gap-1.5", place.above ? "flex-col-reverse" : "flex-col")}
                 >
                   <span className="relative grid size-5 place-items-center">
                     {active ? <span className="ix-node-active absolute inset-0 rounded-full" /> : null}

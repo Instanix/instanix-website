@@ -194,7 +194,7 @@ function ReportGate({
     <Card className="border-brand/40 p-6 sm:p-8">
       <form onSubmit={submit} className="space-y-5" aria-busy={sending}>
         <div className="flex items-start gap-4">
-          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,var(--ix-cyan),var(--ix-primary))] text-white shadow-ix-glow">
+          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand-text">
             <LockKeyhole className="size-6" aria-hidden="true" />
           </span>
           <div className="space-y-1">
