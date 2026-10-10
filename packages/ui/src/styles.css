@@ -316,7 +316,6 @@ html.lenis {
 
 /* Thicker glass for focal controls: lit top edge, soft inner glow, accent halo. */
 .ix-glass-strong {
-  position: relative;
   background: linear-gradient(180deg, color-mix(in srgb, var(--ix-surface) 78%, transparent), color-mix(in srgb, var(--ix-surface) 52%, transparent));
   border: 1px solid var(--ix-glass-line);
   -webkit-backdrop-filter: blur(28px) saturate(1.8);
@@ -693,4 +692,64 @@ html[lang="ar"] :is(h1, h2, h3, h4):not([dir="ltr"]) {
 /* Accent words on always-dark bands need the lighter brand tone. */
 .ix-on-ink .ix-gradient-text {
   color: var(--ix-cyan);
+}
+
+/* Marquee and beams, after Magic UI (MIT). */
+.ix-marquee {
+  --marquee-gap: 2.25rem;
+  display: flex;
+  gap: var(--marquee-gap);
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+.ix-marquee-track {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--marquee-gap);
+  min-width: 100%;
+  justify-content: space-around;
+  animation: ix-marquee var(--marquee-s, 36s) linear infinite;
+}
+.ix-marquee:hover .ix-marquee-track {
+  animation-play-state: paused;
+}
+@keyframes ix-marquee {
+  to {
+    transform: translateX(calc(-100% - var(--marquee-gap)));
+  }
+}
+@keyframes ix-beam {
+  from {
+    stroke-dashoffset: 1.2;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.ix-beam {
+  stroke-dasharray: 0.2 1;
+  stroke-dashoffset: 1.2;
+  filter: drop-shadow(0 0 4px var(--ix-cyan));
+  animation: ix-beam 2.7s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ix-marquee {
+    mask-image: none;
+  }
+  .ix-marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    flex-shrink: 1;
+    justify-content: flex-start;
+  }
+  .ix-marquee-track[aria-hidden="true"] {
+    display: none;
+  }
+  .ix-beam {
+    animation: none;
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+    opacity: 0.5;
+  }
 }

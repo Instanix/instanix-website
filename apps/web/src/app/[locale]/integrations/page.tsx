@@ -2,8 +2,9 @@ import { getAgent } from "@ix/agents";
 import { AgentFigure, Card } from "@ix/ui";
 import { KeyRound, ScrollText, ShieldCheck, type LucideIcon } from "lucide-react";
 import { ToolMark } from "@/components/blocks";
+import { BeamHub } from "@/components/magic";
 import { Intro, PageHero, Section, SiteChrome } from "@/components/site-chrome";
-import { TOOL_CATEGORIES } from "@/lib/catalog";
+import { FEATURED_TOOLS, TOOL_CATEGORIES } from "@/lib/catalog";
 import { loadPage, pageMetadata, type LocaleParams } from "@/lib/page";
 
 /** Same order as `integrationsPage.govern` in the dictionaries. */
@@ -31,6 +32,15 @@ export default async function IntegrationsPage({ params }: LocaleParams) {
           body={p.body}
           art={<AgentFigure agent={getAgent("hephaestus")} priority />}
         />
+
+        {/* Your tools on one side, your tools on the other, IX in the middle */}
+        <Section>
+          <BeamHub
+            label={t.web.connect.title}
+            incoming={FEATURED_TOOLS.filter((tool) => ["WhatsApp", "Notion", "Airtable"].includes(tool.name))}
+            outgoing={FEATURED_TOOLS.filter((tool) => ["n8n", "Claude", "Supabase"].includes(tool.name))}
+          />
+        </Section>
 
         <Section className="space-y-5">
           {TOOL_CATEGORIES.map((category) => {

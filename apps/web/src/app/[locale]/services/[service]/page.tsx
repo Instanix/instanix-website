@@ -42,7 +42,6 @@ export default async function ServicePage({ params }: Props) {
   const labels = t.web.serviceDetail;
   const summary = t.web.servicesPage.items[service.key];
   const detail = labels.items[service.key];
-  const Icon = service.icon;
   const path = `/services/${slug}`;
 
   return (
@@ -71,11 +70,19 @@ export default async function ServicePage({ params }: Props) {
         eyebrow={t.web.servicesPage.eyebrow}
         title={summary.title}
         body={summary.body}
-        art={
-          <span className="mb-10 grid size-40 place-items-center rounded-[28%] bg-brand-soft text-brand-text sm:size-52">
-            <Icon className="size-20 sm:size-24" aria-hidden="true" />
-          </span>
-        }
+        art={service.agents.slice(0, 3).map((key, index) => (
+          <img
+            key={key}
+            src={`/agents/${key}.webp`}
+            alt=""
+            aria-hidden="true"
+            width={400}
+            height={900}
+            fetchPriority={index === 0 ? "high" : "auto"}
+            decoding="async"
+            className={`relative w-auto object-contain drop-shadow-[0_24px_30px_rgb(6_23_58/0.3)] ${index === 0 ? "z-10 h-full" : "-ms-10 h-[84%]"}`}
+          />
+        ))}
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <Link href={`/${locale}/assessment`} className={buttonClass("primary", "lg")}>
@@ -108,7 +115,7 @@ export default async function ServicePage({ params }: Props) {
               <Card className="h-full space-y-3 p-6">
                 <span
                   dir="ltr"
-                  className="grid size-10 place-items-center rounded-full bg-[linear-gradient(135deg,var(--ix-cyan),var(--ix-primary))] text-sm font-extrabold text-white"
+                  className="block font-mono text-sm font-bold text-brand-text"
                 >
                   {i + 1}
                 </span>

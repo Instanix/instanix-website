@@ -6,6 +6,7 @@ import { BeforeAfter } from "@/components/before-after";
 import { GuardGrid, ToolMark } from "@/components/blocks";
 import { FlowCanvas } from "@/components/flow-canvas";
 import { GulfMap } from "@/components/gulf-map";
+import { Marquee } from "@/components/magic";
 import { HeroStage } from "@/components/hero-stage";
 import { Reveal } from "@/components/motion";
 import { SavingsCalculator } from "@/components/savings-calculator";
@@ -32,13 +33,15 @@ export default async function HomePage({ params }: LocaleParams) {
             <h2 className="shrink-0 text-xs leading-relaxed font-extrabold tracking-widest text-fg-soft uppercase lg:max-w-48">
               {w.connect.title}
             </h2>
-            <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-3">
-              {FEATURED_TOOLS.map((tool) => (
-                <li key={tool.name}>
-                  <ToolMark tool={tool} />
-                </li>
-              ))}
-            </ul>
+            <div className="min-w-0 flex-1">
+              <Marquee label={w.connect.title}>
+                {FEATURED_TOOLS.map((tool) => (
+                  <li key={tool.name}>
+                    <ToolMark tool={tool} />
+                  </li>
+                ))}
+              </Marquee>
+            </div>
             <Link href={`/${locale}/integrations`} className={buttonClass("secondary", "sm", "shrink-0 self-start lg:self-auto")}>
               {w.links.viewIntegrations}
               <ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" />
