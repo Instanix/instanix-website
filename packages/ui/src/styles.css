@@ -508,7 +508,7 @@ html[lang="ar"] :is(h1, h2, h3, h4):not([dir="ltr"]) {
 /* Floating header: clear glass that lights up in the brand's neon blue under the pointer. */
 .ix-header-bar {
   position: relative;
-  background: color-mix(in srgb, var(--ix-surface) 42%, transparent);
+  background: color-mix(in srgb, var(--ix-surface) 74%, transparent);
   border: 1px solid var(--ix-glass-line);
   -webkit-backdrop-filter: blur(22px) saturate(1.8);
   backdrop-filter: blur(22px) saturate(1.8);

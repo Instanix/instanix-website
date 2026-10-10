@@ -70,8 +70,15 @@ function NodeTile({
  * A workflow canvas that runs a sample job through the team, step by step. Each scenario
  * is a different business; the sales one pauses at a human approval gate.
  */
-export function FlowCanvas({ copy }: { readonly copy: Copy }) {
-  const [flow, setFlow] = useState<FlowKey>(FLOW_KEYS[0] ?? "sales");
+export function FlowCanvas({
+  copy,
+  flows = FLOW_KEYS,
+}: {
+  readonly copy: Copy;
+  /** Limit the picker (a case study shows only its own workflow). */
+  readonly flows?: readonly FlowKey[];
+}) {
+  const [flow, setFlow] = useState<FlowKey>(flows[0] ?? "sales");
   const [stage, setStage] = useState<Stage>(-1);
   const rootRef = useRef<HTMLDivElement>(null);
   const started = useRef(false);
@@ -125,19 +132,21 @@ export function FlowCanvas({ copy }: { readonly copy: Copy }) {
 
   return (
     <div ref={rootRef} className="space-y-4">
-      <div role="group" aria-label={copy.scenarioLabel} className="flex flex-wrap gap-2">
-        {FLOW_KEYS.map((key) => (
-          <button
-            key={key}
-            type="button"
-            aria-pressed={key === flow}
-            onClick={() => choose(key)}
-            className={buttonClass(key === flow ? "primary" : "secondary", "sm", "h-10")}
-          >
-            {copy.scenarios[key].name}
-          </button>
-        ))}
-      </div>
+      {flows.length > 1 ? (
+        <div role="group" aria-label={copy.scenarioLabel} className="flex flex-wrap gap-2">
+          {flows.map((key) => (
+            <button
+              key={key}
+              type="button"
+              aria-pressed={key === flow}
+              onClick={() => choose(key)}
+              className={buttonClass(key === flow ? "primary" : "secondary", "sm", "h-10")}
+            >
+              {copy.scenarios[key].name}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="ix-glass-strong relative overflow-hidden rounded-ix-lg">

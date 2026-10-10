@@ -42,7 +42,6 @@ export default async function IndustryPage({ params }: Props) {
   const t = getDictionary(locale);
   const labels = t.web.industries;
   const copy = labels.items[industry.key];
-  const Icon = industry.icon;
   const path = `/industries/${slug}`;
 
   return (
@@ -71,11 +70,19 @@ export default async function IndustryPage({ params }: Props) {
         eyebrow={copy.name}
         title={copy.headline}
         body={copy.sub}
-        art={
-          <span className="mb-10 grid size-40 place-items-center rounded-[28%] bg-brand-soft text-brand-text sm:size-52">
-            <Icon className="size-20 sm:size-24" aria-hidden="true" />
-          </span>
-        }
+        art={[...new Set(industry.flowAgents)].slice(0, 3).map((key, index) => (
+          <img
+            key={key}
+            src={`/agents/${key}.webp`}
+            alt=""
+            aria-hidden="true"
+            width={400}
+            height={900}
+            fetchPriority={index === 0 ? "high" : "auto"}
+            decoding="async"
+            className={`relative w-auto object-contain drop-shadow-[0_24px_30px_rgb(6_23_58/0.3)] ${index === 0 ? "z-10 h-full" : "-ms-10 h-[84%]"}`}
+          />
+        ))}
       >
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link href={`/${locale}/assessment`} className={buttonClass("primary", "lg")}>

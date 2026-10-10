@@ -871,7 +871,7 @@ export const en = {
     privacyPage: {
       eyebrow: "Privacy",
       title: "Privacy Policy",
-      updated: "Last updated: 7 October 2026",
+      updated: "Last updated: 10 October 2026",
       sections: [
         { title: "Who we are", body: ["This website is operated by Instanix. This policy explains what information the website handles and why."] },
         {
@@ -880,6 +880,26 @@ export const en = {
             "When you use the ZEUS assessment, the answers you enter (industry, company size, country, your description and the tools you mention) are sent to our AI provider, OpenAI, to generate the assessment.",
             "If you ask for the full report, we store your name, your WhatsApp number or email, your answers and the generated assessment, with your consent, so our team can contact you about your project. If you do not ask for it, we do not store your answers or the assessment.",
             "We never write your answers to our logs. Please do not enter confidential information in the description.",
+          ],
+        },
+        {
+          title: "Live agent demo",
+          body: [
+            "When you chat with the live agent demo, the messages you type are sent to our AI provider, OpenAI, to generate the replies. The business in the demo is fictional and its data is sample data.",
+            "We do not store the conversation and we never write it to our logs. OpenAI processes it under its own terms. Please do not enter personal or confidential information in the chat.",
+          ],
+        },
+        {
+          title: "Voice input",
+          body: [
+            "If you use the microphone, your browser asks for your permission first. The short recording is sent to our server and then to OpenAI to be turned into text, which appears in the text box for you to check before you continue.",
+            "We do not store the recording or the text, and we never write them to our logs. OpenAI processes the recording under its own terms.",
+          ],
+        },
+        {
+          title: "Calculator and team builder",
+          body: [
+            "The savings calculator and the team builder run in your browser. What you choose there reaches us only if you continue to the assessment, where it is placed in the description for you to edit.",
           ],
         },
         {
