@@ -408,7 +408,7 @@ export function AssessmentForm({
                     <li key={step.title} className="flex gap-4">
                       <span
                         dir="ltr"
-                        className="grid size-9 shrink-0 place-items-center rounded-full bg-[linear-gradient(135deg,var(--ix-cyan),var(--ix-primary))] text-sm font-extrabold text-white"
+                        className="grid size-9 shrink-0 place-items-center rounded-full border border-line-strong font-mono text-sm font-bold text-brand-text"
                       >
                         {i + 1}
                       </span>

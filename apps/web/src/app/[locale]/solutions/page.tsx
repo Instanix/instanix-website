@@ -1,7 +1,7 @@
-import { getAgent } from "@ix/agents";
-import { AgentAvatar, AgentFigure, Card } from "@ix/ui";
+import { AGENTS, getAgent } from "@ix/agents";
+import { AgentFigure } from "@ix/ui";
 import Link from "next/link";
-import { BuildTeam, type BuildGoal } from "@/components/build-team";
+import { TeamBuilder } from "@/components/team-builder";
 import { Intro, PageHero, Section, SiteChrome } from "@/components/site-chrome";
 import { GOALS, SOLUTIONS } from "@/lib/catalog";
 import { loadPage, pageMetadata, type LocaleParams } from "@/lib/page";
@@ -13,13 +13,6 @@ export function generateMetadata({ params }: LocaleParams) {
 export default async function SolutionsPage({ params }: LocaleParams) {
   const { locale, t } = await loadPage(params);
   const w = t.web;
-
-  const goals: BuildGoal[] = GOALS.map(({ key, agents }) => ({
-    key,
-    label: w.build.goals[key].label,
-    body: w.build.goals[key].body,
-    agents: agents.map((agentKey) => ({ agent: getAgent(agentKey), role: t.agents[agentKey].role })),
-  }));
 
   return (
     <SiteChrome locale={locale} t={t} path="/solutions">
@@ -36,48 +29,43 @@ export default async function SolutionsPage({ params }: LocaleParams) {
             </>
           }
         />
-        <Section>
+        <Section reveal={false}>
           <ul className="grid gap-5 md:grid-cols-2">
             {SOLUTIONS.map((solution) => {
               const copy = w.solutions.items[solution.key];
-              const Icon = solution.icon;
               return (
-                <li key={solution.key}>
-                  <Card className="flex h-full flex-col gap-5 p-6 sm:p-7">
-                    <div className="flex items-start gap-4">
-                      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand-text">
-                        <Icon className="size-6" aria-hidden="true" />
-                      </span>
-                      <div className="space-y-1">
-                        <h2 className="text-xl font-extrabold tracking-tight">{copy.title}</h2>
-                        <p className="text-muted">{copy.body}</p>
-                      </div>
-                    </div>
-                    <div className="mt-auto space-y-3 border-t border-line pt-4">
-                      <p className="text-xs font-extrabold tracking-widest text-fg-soft uppercase">{w.solutions.teamLabel}</p>
-                      <ul className="grid gap-2 sm:grid-cols-2">
-                        {solution.agents.map((key) => {
-                          const agent = getAgent(key);
-                          return (
-                            <li key={key}>
-                              <Link
-                                href={`/${locale}/agents/${key}`}
-                                className="flex items-center gap-3 rounded-xl bg-surface-2 p-2.5 transition-colors hover:bg-brand-soft"
-                              >
-                                <AgentAvatar agent={agent} size="sm" className="size-12" />
-                                <span className="min-w-0">
-                                  <span className="block text-sm font-extrabold tracking-wide">
-                                    <bdi dir="ltr">{agent.name}</bdi>
-                                  </span>
-                                  <span className="block truncate text-xs text-muted">{t.agents[key].role}</span>
-                                </span>
-                              </Link>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
-                  </Card>
+                <li key={solution.key} className="ix-reveal">
+                  <article className="ix-spot relative flex h-full min-h-72 flex-col overflow-hidden rounded-[2rem] border border-line bg-surface p-7 shadow-ix sm:p-9">
+                    <h2 className="max-w-[60%] text-3xl leading-[1.08] font-extrabold tracking-tight sm:text-4xl">{copy.title}</h2>
+                    <p className="mt-3 max-w-[58%] text-base text-pretty text-muted sm:text-lg">{copy.body}</p>
+                    <ul className="mt-auto flex flex-wrap gap-2 pt-6">
+                      {solution.agents.map((key) => (
+                        <li key={key}>
+                          <Link
+                            href={`/${locale}/agents/${key}`}
+                            className="ix-btn-glass inline-flex h-9 items-center rounded-full px-3.5 text-xs font-bold tracking-wide transition-[border-color,background-color,transform] duration-300"
+                          >
+                            <bdi dir="ltr">{getAgent(key).name}</bdi>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                    {/* The team for this solution, standing at the far edge */}
+                    <span dir="ltr" aria-hidden="true" className="pointer-events-none absolute end-4 bottom-0 flex h-[78%] items-end">
+                      {solution.agents.slice(0, 2).map((key, i) => (
+                        <img
+                          key={key}
+                          src={`/agents/${key}.webp`}
+                          alt=""
+                          width={400}
+                          height={900}
+                          loading="lazy"
+                          decoding="async"
+                          className={`w-auto object-contain drop-shadow-[0_18px_22px_rgb(6_23_58/0.28)] ${i === 0 ? "h-full" : "-ms-8 h-[86%]"}`}
+                        />
+                      ))}
+                    </span>
+                  </article>
                 </li>
               );
             })}
@@ -87,10 +75,23 @@ export default async function SolutionsPage({ params }: LocaleParams) {
 
       <Section className="space-y-8">
         <Intro eyebrow={w.build.eyebrow} title={w.build.title} body={w.build.body} />
-        <BuildTeam
-          goals={goals}
-          labels={{ goals: w.build.goalsLabel, recommended: w.build.recommended, cta: w.build.cta }}
-          ctaHref={`/${locale}/assessment`}
+        <TeamBuilder
+          locale={locale}
+          agents={AGENTS.map((agent) => ({ agent, role: t.agents[agent.key].role }))}
+          presets={GOALS.map(({ key, agents }) => ({ key, label: w.build.goals[key].label, agents }))}
+          labels={{
+            presets: w.build.goalsLabel,
+            roster: w.build.rosterTitle,
+            board: w.build.boardTitle,
+            empty: w.build.boardEmpty,
+            add: w.build.add,
+            remove: w.build.remove,
+            clear: w.build.clear,
+            covers: w.build.covers,
+            limit: w.build.limit,
+            send: w.build.send,
+            draft: w.build.draft,
+          }}
         />
       </Section>
     </SiteChrome>

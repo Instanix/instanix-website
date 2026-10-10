@@ -295,7 +295,7 @@ export function AgentsOffice({
 
       <div className="grid gap-3 xl:grid-cols-[17rem_minmax(0,1fr)_18rem]">
         {/* The floor. Geometry never mirrors, so it is always left to right. */}
-        <div dir="ltr" className="relative flex items-center overflow-hidden rounded-3xl border border-ink-line bg-[radial-gradient(ellipse_at_50%_55%,#0f2a5e,#060f24_72%)] xl:order-2">
+        <div dir="ltr" className="relative flex items-center overflow-hidden rounded-3xl border border-ink-line bg-[radial-gradient(ellipse_at_50%_55%,#0f2a5e,#060f24_72%)] py-4 xl:order-2">
           <div
             className="relative w-full transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.2,1)]"
             style={{ aspectRatio: `${FLOOR.width} / ${FLOOR.height}`, ...floorStyle }}
@@ -484,7 +484,7 @@ export function AgentsOffice({
         </div>
 
         {/* The selected agent, and a chat with it */}
-        <div className="flex min-h-80 flex-col rounded-3xl border border-ink-line bg-white/5 p-4 xl:order-1 xl:max-h-[32rem]">
+        <div className="flex min-h-44 flex-col rounded-3xl border border-ink-line bg-white/5 p-4 xl:order-1 xl:max-h-[32rem] xl:min-h-80">
           {agent ? (
             <>
               <div key={agent.key} className="ix-anim-in flex items-center gap-3">

@@ -76,3 +76,30 @@ stored. The privacy policy and the form text say so.
 
 ### D10 — Company facts
 Founder: Amir Diab. Founded 2025. Headquarters: Dubai, UAE. Public contact: info@instanix.ae.
+
+## 2026-10-10
+
+### D11 — Design direction
+The public site follows an editorial, product-first direction: large type, one accent color,
+glass surfaces, scroll-driven scenes, and the IX characters as the product on show. Template
+ornaments are out: no dotted eyebrow pills, no gradient text outside the logo, no gradient
+icon tiles, no decorative grid backdrops. The logo is always the official master file from
+`IX-LOGO`, never redrawn. Arabic uses Alexandria for headings and Readex Pro for text.
+
+### D12 — Interactive demos say what they are
+Every simulated element (workflows, the phone conversation, the office, the agent
+workbenches, the before/after day, the calculator) is labelled as illustrative or as an
+estimate. No agent page claims a client result. Real results replace an example only when
+the owner supplies them.
+
+### D13 — Live AI on the public site is a metered trial
+The live chat (the phone demo and the office) is a real model through the AI runtime, with
+no tools. A visitor gets six messages per 30 days, shared across both, then is offered a
+consultation booking. Every AI endpoint sits behind one guard: same-origin check, a kill
+switch for the demos, per-visitor and daily limits kept in Supabase (`usage_counters`). The
+visitor is recognised by a keyed hash of the IP address, never the address itself.
+In the office an agent passes the visitor to the right colleague, at most once per message.
+
+### D14 — Voice input is not offered
+It was built and removed: it was not reliable enough across browsers and microphones.
+The microphone stays blocked by the site's Permissions-Policy.

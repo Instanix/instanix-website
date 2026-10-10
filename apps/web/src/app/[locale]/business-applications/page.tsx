@@ -1,5 +1,5 @@
 import { getAgent } from "@ix/agents";
-import { AgentFigure, Card } from "@ix/ui";
+import { AgentFigure } from "@ix/ui";
 import { AppWindow, Building2, LayoutDashboard, Settings2, Users, Workflow, type LucideIcon } from "lucide-react";
 import { Intro, PageHero, Section, SiteChrome } from "@/components/site-chrome";
 import { loadPage, pageMetadata, type LocaleParams } from "@/lib/page";
@@ -31,41 +31,40 @@ export default async function BusinessApplicationsPage({ params }: LocaleParams)
         art={<AgentFigure agent={getAgent("apollo")} priority />}
       />
 
-      <Section className="space-y-8">
-        <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{p.itemsTitle}</h2>
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* What we build: a numbered list, not a wall of identical cards */}
+      <Section className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-16">
+        <h2 className="text-4xl leading-[1.08] font-extrabold tracking-tight sm:text-5xl lg:sticky lg:top-28 lg:self-start">{p.itemsTitle}</h2>
+        <ol>
           {p.items.map((item, i) => {
             const Icon = APP_ICONS[i] ?? AppWindow;
             return (
-              <li key={item.title}>
-                <Card className="h-full space-y-3 p-6 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-ix-lg">
-                  <span className="grid size-12 place-items-center rounded-2xl bg-brand-soft text-brand-text">
-                    <Icon className="size-6" aria-hidden="true" />
-                  </span>
-                  <h3 className="text-lg font-extrabold tracking-tight">{item.title}</h3>
-                  <p className="text-sm text-muted">{item.body}</p>
-                </Card>
+              <li key={item.title} className="group grid grid-cols-[auto_1fr_auto] items-baseline gap-x-5 border-b border-line py-6 first:pt-0 last:border-0">
+                <span dir="ltr" className="font-mono text-sm font-bold text-brand-text">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div className="space-y-1.5">
+                  <h3 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{item.title}</h3>
+                  <p className="max-w-xl text-base text-pretty text-muted sm:text-lg">{item.body}</p>
+                </div>
+                <Icon className="size-6 self-center text-muted transition-colors duration-300 group-hover:text-brand-text" aria-hidden="true" />
               </li>
             );
           })}
-        </ul>
+        </ol>
       </Section>
 
+      {/* How we work: one line of steps */}
       <Section className="space-y-8">
         <Intro eyebrow={p.approachEyebrow} title={p.approachTitle} />
-        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
           {p.approach.map((step, i) => (
-            <li key={step.title}>
-              <Card className="h-full space-y-3 p-6">
-                <span
-                  dir="ltr"
-                  className="grid size-10 place-items-center rounded-full bg-[linear-gradient(135deg,var(--ix-cyan),var(--ix-primary))] text-sm font-extrabold text-white"
-                >
-                  {i + 1}
-                </span>
-                <h3 className="text-lg font-extrabold tracking-tight">{step.title}</h3>
-                <p className="text-sm text-muted">{step.body}</p>
-              </Card>
+            <li key={step.title} className="relative space-y-3 border-t-2 border-line pt-5">
+              <span aria-hidden="true" className="absolute -top-0.5 start-0 h-0.5 w-12 bg-primary" />
+              <span dir="ltr" className="block font-mono text-sm font-bold text-brand-text">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="text-xl font-extrabold tracking-tight">{step.title}</h3>
+              <p className="text-muted">{step.body}</p>
             </li>
           ))}
         </ol>
