@@ -1107,6 +1107,8 @@ export const en = {
       hub: "ZEUS coordinates",
       agentsLabel: "agents",
       overview: "Whole office",
+      connected: "Connected to",
+      doneLabel: "done",
       tasksTitle: "Task status",
       approve: "Approve",
       workingOn: "Working on",
@@ -1129,6 +1131,7 @@ export const en = {
       chat: {
         title: "Talk to {name}",
         greeting: "I am {name}. Ask me what I do, or tell me about your business.",
+        transferred: "{from} passed you to {to}",
         placeholder: "Write a message…",
         send: "Send",
         remaining: "{count} messages left in your trial",

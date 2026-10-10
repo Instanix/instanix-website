@@ -1109,6 +1109,8 @@ export const ar: Dictionary = {
       hub: "ZEUS ينسّق",
       agentsLabel: "وكلاء",
       overview: "المكتب كله",
+      connected: "متصل بـ",
+      doneLabel: "مكتملة",
       tasksTitle: "حالة المهام",
       approve: "وافق",
       workingOn: "يعمل على",
@@ -1131,6 +1133,7 @@ export const ar: Dictionary = {
       chat: {
         title: "تحدّث مع {name}",
         greeting: "أنا {name}. اسألني عمّا أفعله، أو حدّثني عن أعمالك.",
+        transferred: "{from} حوّلك إلى {to}",
         placeholder: "اكتب رسالة…",
         send: "إرسال",
         remaining: "متبقٍ {count} رسائل في تجربتك",

@@ -18,7 +18,10 @@ function fail(code: ErrorCode, status: number, correlationId: string, headers?: 
   return NextResponse.json({ error: { code }, correlationId }, { status, headers: { "Cache-Control": "no-store", ...headers } });
 }
 
-/** One reply from an IX agent in the office demo. The conversation is never stored. */
+/**
+ * One reply from an IX agent in the office demo. `agent` in the response is who answered:
+ * the agent asked, or the colleague the visitor was passed to. The conversation is never stored.
+ */
 export async function POST(request: NextRequest) {
   const correlationId = crypto.randomUUID();
 
@@ -51,13 +54,13 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { reply, usage } = await runOfficeChat(createOpenAiProvider({ apiKey }), input.data, {
+    const { reply, agent, usage } = await runOfficeChat(createOpenAiProvider({ apiKey }), input.data, {
       model,
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     // Usage only: never the visitor's text or the generated reply.
-    console.warn(`[office-chat ${correlationId}] ok agent=${input.data.agent} model=${model} in=${usage.inputTokens} out=${usage.outputTokens}`);
-    return NextResponse.json({ reply, correlationId }, { headers: { "Cache-Control": "no-store" } });
+    console.warn(`[office-chat ${correlationId}] ok asked=${input.data.agent} answered=${agent} model=${model} in=${usage.inputTokens} out=${usage.outputTokens}`);
+    return NextResponse.json({ reply, agent, correlationId }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const detail = error instanceof AiError ? `${error.code}${error.status ? ` http=${error.status}` : ""}` : "unexpected";
     console.error(`[office-chat ${correlationId}] failed: ${detail}`);

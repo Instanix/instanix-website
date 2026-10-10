@@ -775,3 +775,35 @@ html[lang="ar"] :is(h1, h2, h3, h4):not([dir="ltr"]) {
     filter: drop-shadow(0 0 10px rgb(0 200 255 / 0.8));
   }
 }
+
+/* Office details: working screens breathe, server lights blink in turn. */
+@keyframes ix-screen {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes ix-led {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+.ix-office-screen {
+  animation: ix-screen 2.6s ease-in-out infinite;
+}
+.ix-office-led {
+  animation: ix-led 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ix-office-screen,
+  .ix-office-led {
+    animation: none;
+  }
+}
