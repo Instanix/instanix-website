@@ -28,3 +28,4 @@ export {
   type DemoChatResult,
   type DemoChatScenario,
 } from "./demo-chat";
+export { audioExtension, TRANSCRIBE_MAX_BYTES, TRANSCRIBE_MAX_SECONDS, TRANSCRIBE_MAX_TEXT, transcribeSpeech } from "./transcribe";

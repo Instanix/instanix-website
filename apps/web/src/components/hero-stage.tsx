@@ -9,23 +9,10 @@ import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 
 import { saveAssessmentDraft } from "@/lib/assessment-draft";
 import { prefersReducedMotion } from "./motion";
 
-/** The part of the browser speech API this page uses. It is not in the standard DOM types. */
-interface SpeechRecognizer {
-  lang: string;
-  interimResults: boolean;
-  continuous: boolean;
-  onresult: ((event: { readonly results: ArrayLike<ArrayLike<{ readonly transcript: string }>> }) => void) | null;
-  onend: (() => void) | null;
-  onerror: (() => void) | null;
-  start(): void;
-  stop(): void;
-}
-type SpeechRecognizerConstructor = new () => SpeechRecognizer;
+/** Longest clip sent for transcription. Mirrors the server limit in @ix/ai. */
+const MAX_RECORD_MS = 20_000;
 
-function speechRecognizer(): SpeechRecognizerConstructor | null {
-  const scope = window as unknown as { SpeechRecognition?: SpeechRecognizerConstructor; webkitSpeechRecognition?: SpeechRecognizerConstructor };
-  return scope.SpeechRecognition ?? scope.webkitSpeechRecognition ?? null;
-}
+type VoiceState = "idle" | "recording" | "transcribing";
 
 /**
  * The cast on stage, front to back. `x` is the offset from center in percent of the
@@ -52,35 +39,69 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
   const sectionRef = useRef<HTMLElement>(null);
   const [draft, setDraft] = useState("");
   const [canListen, setCanListen] = useState(false);
-  const [listening, setListening] = useState(false);
-  const recognizerRef = useRef<SpeechRecognizer | null>(null);
+  const [voice, setVoice] = useState<VoiceState>("idle");
+  const [voiceProblem, setVoiceProblem] = useState<string | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const listening = voice === "recording";
 
-  // The microphone only appears where the browser can recognise speech.
+  // The microphone only appears where the browser can record.
   useEffect(() => {
-    setCanListen(speechRecognizer() !== null);
-    return () => recognizerRef.current?.stop();
+    setCanListen(typeof MediaRecorder !== "undefined" && Boolean(navigator.mediaDevices?.getUserMedia));
+    return () => {
+      if (recorderRef.current?.state === "recording") recorderRef.current.stop();
+    };
   }, []);
 
-  function toggleVoice() {
-    if (listening) {
-      recognizerRef.current?.stop();
+  async function transcribe(clip: Blob) {
+    setVoice("transcribing");
+    try {
+      const response = await fetch(`/api/v1/transcribe?locale=${locale}`, {
+        method: "POST",
+        headers: { "Content-Type": clip.type || "audio/webm" },
+        body: clip,
+      });
+      const data: unknown = response.ok ? await response.json() : null;
+      const text = typeof data === "object" && data !== null && "text" in data && typeof data.text === "string" ? data.text : "";
+      if (text) setDraft(text.slice(0, 300));
+      else setVoiceProblem(h.voiceError);
+    } catch {
+      setVoiceProblem(h.voiceError);
+    } finally {
+      setVoice("idle");
+    }
+  }
+
+  async function toggleVoice() {
+    if (voice === "transcribing") return;
+    if (voice === "recording") {
+      recorderRef.current?.stop();
       return;
     }
-    const Recognizer = speechRecognizer();
-    if (!Recognizer) return;
-    const recognizer = new Recognizer();
-    recognizer.lang = locale === "ar" ? "ar-AE" : "en-US";
-    recognizer.interimResults = true;
-    recognizer.continuous = false;
-    recognizer.onresult = (event) => {
-      const text = Array.from(event.results, (result) => result[0]?.transcript ?? "").join(" ");
-      setDraft(text.trim().slice(0, 300));
+    setVoiceProblem(null);
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      setVoiceProblem(h.voiceDenied);
+      return;
+    }
+    const recorder = new MediaRecorder(stream);
+    const chunks: Blob[] = [];
+    const timer = window.setTimeout(() => recorder.state === "recording" && recorder.stop(), MAX_RECORD_MS);
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) chunks.push(event.data);
     };
-    recognizer.onend = () => setListening(false);
-    recognizer.onerror = () => setListening(false);
-    recognizerRef.current = recognizer;
-    setListening(true);
-    recognizer.start();
+    recorder.onstop = () => {
+      window.clearTimeout(timer);
+      // Release the microphone as soon as the clip is complete.
+      for (const track of stream.getTracks()) track.stop();
+      const clip = new Blob(chunks, { type: recorder.mimeType });
+      if (clip.size > 0) void transcribe(clip);
+      else setVoice("idle");
+    };
+    recorderRef.current = recorder;
+    setVoice("recording");
+    recorder.start();
   }
 
   // The stage follows the pointer and opens up as the page scrolls. Both write CSS
@@ -119,7 +140,6 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
 
   function ask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    recognizerRef.current?.stop();
     saveAssessmentDraft(draft);
     router.push(`/${locale}/assessment`);
   }
@@ -161,13 +181,14 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
               onChange={(event) => setDraft(event.currentTarget.value)}
               maxLength={300}
               autoComplete="off"
-              placeholder={listening ? h.voiceListening : h.promptPlaceholder}
+              placeholder={listening ? h.voiceListening : voice === "transcribing" ? h.voiceTranscribing : h.promptPlaceholder}
               className="h-12 min-w-0 flex-1 bg-transparent text-base text-fg outline-none placeholder:text-muted"
             />
             {canListen ? (
               <button
                 type="button"
-                onClick={toggleVoice}
+                onClick={() => void toggleVoice()}
+                disabled={voice === "transcribing"}
                 aria-pressed={listening}
                 aria-label={listening ? h.voiceStop : h.voiceStart}
                 title={listening ? h.voiceStop : h.voiceStart}
@@ -200,6 +221,11 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
             ))}
           </ul>
           <p className="mt-3 text-xs text-muted">{h.promptHint}</p>
+          {voiceProblem ? (
+            <p role="alert" className="ix-anim-in mt-2 text-sm font-semibold text-danger">
+              {voiceProblem}
+            </p>
+          ) : null}
         </form>
       </div>
 
