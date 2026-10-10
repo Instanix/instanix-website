@@ -87,6 +87,31 @@ describe("lead store", () => {
     expect(JSON.parse(body).organization_id).toBe("11111111-1111-4111-8111-111111111111");
   });
 
+  it("attaches the follow-up to the lead of this organization only", async () => {
+    let sent: { url: string; init: RequestInit } | undefined;
+    const store = createLeadStore({
+      url: "https://example.supabase.co",
+      serviceKey: "service-key",
+      now: () => new Date("2026-10-11T08:00:00.000Z"),
+      fetchImpl: async (url, init) => {
+        sent = { url: String(url), init: init ?? {} };
+        return new Response(null, { status: 204 });
+      },
+    });
+    await store.attachFollowUp(lead.assessmentId, { qualification: { priority: "high" }, draft: "Hi Sara" });
+    expect(sent?.init.method).toBe("PATCH");
+    expect(sent?.url).toContain(`organization_id=eq.${INSTANIX_ORGANIZATION_ID}`);
+    expect(sent?.url).toContain(`assessment_id=eq.${lead.assessmentId}`);
+    expect(JSON.parse(String(sent?.init.body))).toEqual({
+      qualification: { priority: "high" },
+      followup_draft: "Hi Sara",
+      followup_prepared_at: "2026-10-11T08:00:00.000Z",
+    });
+
+    const rejected = createLeadStore({ url: "https://x.supabase.co", serviceKey: "k", fetchImpl: async () => new Response("denied", { status: 403 }) });
+    await expect(rejected.attachFollowUp(lead.assessmentId, { qualification: {}, draft: "x" })).rejects.toMatchObject({ name: "DbError", status: 403 });
+  });
+
   it("raises DbError on a rejected write and on a network failure", async () => {
     const rejected = createLeadStore({ url: "https://x.supabase.co", serviceKey: "k", fetchImpl: async () => new Response("denied", { status: 401 }) });
     await expect(rejected.insert(lead)).rejects.toMatchObject({ name: "DbError", status: 401 });

@@ -80,7 +80,7 @@ function hostOf(value: string | null): string | null {
  * fetch. Requiring it to match this site stops other websites, and simple scripts, from
  * spending the budget. It is one layer, not the only one: the limits below still apply.
  */
-function isSameOrigin(request: NextRequest): boolean {
+export function isSameOrigin(request: NextRequest): boolean {
   const origin = hostOf(request.headers.get("origin"));
   if (!origin) return false;
   const allowed = new Set<string>();
@@ -93,11 +93,26 @@ function isSameOrigin(request: NextRequest): boolean {
 
 // ---------- 3 to 5. Limits ----------
 
-/** A stable, non-reversible label for the visitor. Raw IP addresses are never stored. */
-function visitorLabel(request: NextRequest): string {
-  const ip = request.headers.get("x-real-ip")?.trim() || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+function clientIp(request: NextRequest): string {
+  return request.headers.get("x-real-ip")?.trim() || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+}
+
+function keyedHash(value: string): string {
   const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.OPENAI_API_KEY || "ix";
-  return createHmac("sha256", secret).update(ip).digest("hex").slice(0, 24);
+  return createHmac("sha256", secret).update(value).digest("hex").slice(0, 24);
+}
+
+/** A stable, non-reversible label for the visitor. Raw IP addresses are never stored. */
+export function visitorLabel(request: NextRequest): string {
+  return keyedHash(clientIp(request));
+}
+
+/**
+ * A label for counting unique visitors in the site statistics. It changes every day, so a
+ * visitor cannot be followed from one day to the next, and it is unrelated to `visitorLabel`.
+ */
+export function dailyVisitorLabel(request: NextRequest, now: Date = new Date()): string {
+  return keyedHash(`stats:${now.toISOString().slice(0, 10)}:${clientIp(request)}:${request.headers.get("user-agent") ?? ""}`);
 }
 
 let store: UsageStore | null | undefined;
@@ -136,6 +151,23 @@ async function consume(bucket: string, limit: number, windowSeconds: number) {
     }
   }
   return consumeInMemory(bucket, limit, windowSeconds);
+}
+
+/**
+ * Budget check for an AI call the server starts itself (the follow-up prepared for a new lead).
+ * It counts against its own daily limit and against the daily limit for all AI features.
+ */
+export async function allowBackgroundAi(feature: "lead_followup"): Promise<boolean> {
+  const perDay = limitFromEnv("AI_LIMIT_LEAD_FOLLOWUP_PER_DAY", 40);
+  const totalPerDay = limitFromEnv("AI_LIMIT_TOTAL_PER_DAY", TOTAL_PER_DAY);
+  for (const [bucket, limit] of [[`${feature}:day`, perDay], ["all:day", totalPerDay]] as const) {
+    const decision = await consume(bucket, limit, DAY);
+    if (!decision.allowed) {
+      console.error(`[ai-guard] daily cap reached for "${bucket}"`);
+      return false;
+    }
+  }
+  return true;
 }
 
 /** Checks a request against every control. Call it after validating the input and before calling the provider. */

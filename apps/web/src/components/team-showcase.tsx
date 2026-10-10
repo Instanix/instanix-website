@@ -115,7 +115,9 @@ export function TeamShowcase({
           {/* Figures, stacked: only the active one is visible. */}
           <div dir="ltr" aria-hidden="true" className="relative min-h-0 lg:order-2 lg:h-[78%]">
             <span className="absolute inset-x-[12%] bottom-[2%] h-[9%] rounded-[50%] bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--agent)_75%,transparent),transparent)] blur-lg" />
-            {agents.map(({ agent }, index) => (
+            {/* Only the active figure and its neighbours are in the page, so the browser downloads two or three images and not the whole roster. */}
+            {agents.map(({ agent }, index) =>
+              Math.abs(index - active) > 1 ? null : (
               <img
                 key={agent.key}
                 src={`/agents/${agent.key}.webp`}
@@ -132,7 +134,8 @@ export function TeamShowcase({
                       : "translate-x-16 scale-90 opacity-0 blur-sm"
                 }`}
               />
-            ))}
+              ),
+            )}
           </div>
 
           {/* Copy: every agent is in the page; the inactive ones are hidden and inert. */}

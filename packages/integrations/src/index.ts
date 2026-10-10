@@ -87,6 +87,14 @@ export interface LeadNotification {
   /** Recommended agent names, e.g. ["ZEUS", "ATLAS"]. */
   readonly team: readonly string[];
   readonly assessmentId: string;
+  /** What ATLAS and HERMES prepared. Absent when the agents did not run. */
+  readonly followUp?: {
+    readonly priority: string;
+    readonly reasons: readonly string[];
+    readonly questions: readonly string[];
+    /** The full message, greeting and signature included. */
+    readonly message: string;
+  };
 }
 
 /** Plain-text email telling the owner about a new website lead. Plain text avoids any HTML injection. */
@@ -114,8 +122,24 @@ export function formatLeadNotification(lead: LeadNotification): { subject: strin
     "",
     `Recommended IX team: ${lead.team.join(", ") || "-"}`,
     "",
-    `Assessment ID: ${lead.assessmentId}`,
-    "The full record is in the leads table.",
   ];
-  return { subject: `New lead: ${lead.name} (${lead.industry}, ${lead.country})`, text: lines.join("\n") };
+  const followUp = lead.followUp;
+  if (followUp) {
+    lines.push(
+      `ATLAS priority: ${followUp.priority.toUpperCase()}`,
+      ...followUp.reasons.map((reason) => `  - ${reason}`),
+      "",
+      "Ask on the first call:",
+      ...followUp.questions.map((question) => `  - ${question}`),
+      "",
+      "HERMES draft (nothing was sent; read it, edit it, send it yourself):",
+      followUp.message,
+      "",
+    );
+    // One tap opens WhatsApp with the draft in the box, for the owner to review and send.
+    if (digits) lines.push(`Open in WhatsApp with this draft: https://wa.me/${digits}?text=${encodeURIComponent(followUp.message)}`, "");
+  }
+  lines.push(`Assessment ID: ${lead.assessmentId}`, "The full record is in the leads table.");
+  const flag = followUp ? `[${followUp.priority.toUpperCase()}] ` : "";
+  return { subject: `${flag}New lead: ${lead.name} (${lead.industry}, ${lead.country})`, text: lines.join("\n") };
 }

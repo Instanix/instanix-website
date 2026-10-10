@@ -1,10 +1,11 @@
 import "server-only";
-import { assessmentInputSchema, assessmentSchema, createRateLimiter } from "@ix/ai";
+import { AiError, assessmentInputSchema, assessmentSchema, composeFollowUpMessage, createOpenAiProvider, createRateLimiter, runLeadFollowUp } from "@ix/ai";
 import { getAgent } from "@ix/agents";
 import { leadContactSchema } from "@ix/db";
-import { formatLeadNotification } from "@ix/integrations";
+import { formatLeadNotification, type LeadNotification } from "@ix/integrations";
 import { after, NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
+import { allowBackgroundAi, isSameOrigin } from "@/lib/server/ai-guard";
 import { getLeadStore } from "@/lib/server/leads";
 import { getLeadMail } from "@/lib/server/notify";
 
@@ -24,7 +25,9 @@ const leadRequestSchema = z.object({
   assessment: assessmentSchema,
 });
 
-type ErrorCode = "invalid_input" | "rate_limited" | "not_configured" | "storage_error";
+const FOLLOW_UP_TIMEOUT_MS = 25_000;
+
+type ErrorCode = "invalid_input" | "forbidden" | "rate_limited" | "not_configured" | "storage_error";
 
 function fail(code: ErrorCode, status: number, correlationId: string) {
   return NextResponse.json({ error: { code }, correlationId }, { status, headers: { "Cache-Control": "no-store" } });
@@ -32,6 +35,9 @@ function fail(code: ErrorCode, status: number, correlationId: string) {
 
 export async function POST(request: NextRequest) {
   const correlationId = crypto.randomUUID();
+
+  // Only this website's own pages may store a lead: each new lead also starts an AI call.
+  if (!isSameOrigin(request)) return fail("forbidden", 403, correlationId);
 
   const raw = await request.text();
   if (raw.length > MAX_BODY_BYTES) return fail("invalid_input", 413, correlationId);
@@ -82,10 +88,34 @@ export async function POST(request: NextRequest) {
 
   console.warn(`[leads ${correlationId}] ${created ? "stored" : "already stored"} assessment=${assessmentId}`);
 
-  // Tell the owner, once per lead. It runs after the response is sent, so the visitor is not
-  // kept waiting on the mail server, and a mail failure cannot fail a lead that is already saved.
+  // Once per lead, after the response is sent: ATLAS scores the lead and HERMES drafts the first
+  // message, then the owner is told. The visitor is not kept waiting, and neither an AI failure
+  // nor a mail failure can fail a lead that is already saved. Nothing is sent to the lead: the
+  // owner reads the draft and sends it himself.
   if (created) {
     after(async () => {
+      const team = assessment.team.map(({ agent }) => getAgent(agent).name);
+      let followUp: LeadNotification["followUp"];
+      try {
+        const apiKey = process.env.OPENAI_API_KEY;
+        const model = process.env.OPENAI_MODEL;
+        if (apiKey && model && process.env.AI_LEAD_FOLLOWUP_DISABLED !== "1" && (await allowBackgroundAi("lead_followup"))) {
+          // The model gets the business answers only: no name, phone number or email.
+          const result = await runLeadFollowUp(
+            createOpenAiProvider({ apiKey }),
+            { locale: input.locale, industry: input.industry, companySize: input.companySize, country: input.country, problem: input.problem, tools: input.tools, summary: assessment.summary, team },
+            { model, signal: AbortSignal.timeout(FOLLOW_UP_TIMEOUT_MS) },
+          );
+          const { priority, reasons, questions } = result.followUp;
+          const message = composeFollowUpMessage(input.locale, contact.name, result.followUp.message);
+          followUp = { priority, reasons, questions, message };
+          await store.attachFollowUp(assessmentId, { qualification: { priority, reasons, questions, by: "ATLAS" }, draft: message });
+          console.warn(`[leads ${correlationId}] follow-up prepared priority=${priority} model=${model} in=${result.usage.inputTokens} out=${result.usage.outputTokens}`);
+        }
+      } catch (error) {
+        const detail = error instanceof AiError ? error.code : error instanceof Error ? error.message : "unexpected";
+        console.error(`[leads ${correlationId}] follow-up failed: ${detail}`);
+      }
       try {
         const mail = getLeadMail();
         if (!mail) return;
@@ -101,8 +131,9 @@ export async function POST(request: NextRequest) {
           problem: input.problem,
           tools: input.tools,
           summary: assessment.summary,
-          team: assessment.team.map(({ agent }) => getAgent(agent).name),
+          team,
           assessmentId,
+          ...(followUp ? { followUp } : {}),
         });
         await mail.mailer.send({ to: mail.to, subject, text, ...(contact.email ? { replyTo: contact.email } : {}) });
         console.warn(`[leads ${correlationId}] owner notified`);

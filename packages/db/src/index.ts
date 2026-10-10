@@ -69,6 +69,8 @@ export interface LeadStore {
    * Resolves to true when a new row was created, false when it already existed.
    */
   insert(lead: LeadRecord): Promise<boolean>;
+  /** Records what the agents prepared for a lead that is already stored. */
+  attachFollowUp(assessmentId: string, followUp: { readonly qualification: unknown; readonly draft: string }): Promise<void>;
 }
 
 /**
@@ -88,7 +90,8 @@ export function createLeadStore({
   readonly fetchImpl?: typeof fetch;
   readonly now?: () => Date;
 }): LeadStore {
-  const endpoint = `${url.replace(/\/$/, "")}/rest/v1/leads?on_conflict=organization_id,assessment_id&select=id`;
+  const base = `${url.replace(/\/$/, "")}/rest/v1/leads`;
+  const endpoint = `${base}?on_conflict=organization_id,assessment_id&select=id`;
 
   return {
     async insert(lead) {
@@ -131,7 +134,24 @@ export function createLeadStore({
       const rows: unknown = await response.json().catch(() => null);
       return Array.isArray(rows) && rows.length > 0;
     },
+
+    async attachFollowUp(assessmentId, followUp) {
+      // Scoped to the tenant as well as the assessment, like every other access to this table.
+      const target = `${base}?organization_id=eq.${encodeURIComponent(organizationId)}&assessment_id=eq.${encodeURIComponent(assessmentId)}`;
+      let response: Response;
+      try {
+        response = await fetchImpl(target, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, Prefer: "return=minimal" },
+          body: JSON.stringify({ qualification: followUp.qualification, followup_draft: followUp.draft, followup_prepared_at: now().toISOString() }),
+        });
+      } catch {
+        throw new DbError("Could not reach the database");
+      }
+      if (!response.ok) throw new DbError(`Database returned HTTP ${response.status}`, response.status);
+    },
   };
 }
 
 export { createUsageStore, type UsageDecision, type UsageStore } from "./usage";
+export { createSiteEventStore, referrerHost, siteEventSchema, type SiteEventInput, type SiteEventRecord, type SiteEventStore } from "./events";

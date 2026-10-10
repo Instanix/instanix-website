@@ -61,7 +61,7 @@ export function IndustryCards({ locale, t }: { readonly locale: Locale; readonly
                 {cast.map((agentKey, i) => (
                   <img
                     key={agentKey}
-                    src={`/agents/${agentKey}.webp`}
+                    src={`/agents/${agentKey}-sm.webp`}
                     alt=""
                     width={400}
                     height={900}

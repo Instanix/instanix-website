@@ -103,3 +103,32 @@ In the office an agent passes the visitor to the right colleague, at most once p
 ### D14 — Voice input is not offered
 It was built and removed: it was not reliable enough across browsers and microphones.
 The microphone stays blocked by the site's Permissions-Policy.
+
+### D15 — SCANNO is the one case study
+The public site names SCANNO, as a single "Case Study" and not as a portfolio. The page
+describes what was built, where AI is used, what the technician decides, the guardrails and
+the lessons from running it. It states no counts (reports, cars, inspections) and no
+percentages: nothing has been measured well enough to publish. Time and accuracy are
+described as how the work changes. Three things are never claimed: devices sending readings
+without a person, an accuracy figure for the AI, and an automatic booking system.
+
+### D16 — Website statistics are first-party and cookieless
+Page views and a few key actions go to our own endpoint (`/api/v1/event`) and into
+`site_events` in Supabase. No analytics company, no cookie. Unique visitors are counted with
+a keyed hash of IP address and browser that changes every day. Only the referrer's host is
+kept. "Do Not Track" and "Global Privacy Control" switch counting off. The owner reads the
+`site_stats_*` views in the Supabase dashboard. `SITE_STATS_DISABLED=1` turns it off.
+
+### D17 — The first agents at work: ATLAS and HERMES on our own leads
+When a visitor leaves contact details, ATLAS scores the lead and HERMES drafts the first
+message, through the AI runtime, after the response is sent. The model receives the business
+answers only: no name, phone number or email. The result is stored on the lead and included
+in the owner's notification with a link that opens WhatsApp with the draft in the box.
+Nothing is sent to the lead by the system; the owner reads, edits and sends. The call has
+its own daily limit (`AI_LIMIT_LEAD_FOLLOWUP_PER_DAY`, default 40), counts against the total
+daily limit, and can be switched off with `AI_LEAD_FOLLOWUP_DISABLED=1`.
+
+### D18 — Articles
+`/insights` holds short articles, each in both languages, with Article structured data.
+They explain how we decide and what we learned. The same rule as everywhere: no client
+results, prices or percentages.

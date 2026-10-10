@@ -71,4 +71,28 @@ describe("lead notification", () => {
     expect(text).toContain("Email:     sara@example.com");
     expect(text).not.toContain("wa.me");
   });
+
+  it("adds what the agents prepared, with a WhatsApp link that carries the draft", () => {
+    const message = "Hi Sara,\nYou mentioned leads going unanswered. Could we talk this week?\n\nAmir Diab, Instanix";
+    const { subject, text } = formatLeadNotification({
+      ...lead,
+      followUp: { priority: "high", reasons: ["Concrete problem"], questions: ["How many leads a week?"], message },
+    });
+    expect(subject).toBe("[HIGH] New lead: Sara Ali (real_estate, AE)");
+    expect(text).toContain("ATLAS priority: HIGH");
+    expect(text).toContain("  - How many leads a week?");
+    expect(text).toContain("nothing was sent");
+    expect(text).toContain(`https://wa.me/971501234567?text=${encodeURIComponent(message)}`);
+  });
+
+  it("offers no WhatsApp draft link when the lead left only an email", () => {
+    const { text } = formatLeadNotification({
+      ...lead,
+      phone: null,
+      email: "sara@example.com",
+      followUp: { priority: "low", reasons: ["Vague"], questions: ["What is the goal?"], message: "Hi Sara,\nBody." },
+    });
+    expect(text).toContain("HERMES draft");
+    expect(text).not.toContain("wa.me");
+  });
 });

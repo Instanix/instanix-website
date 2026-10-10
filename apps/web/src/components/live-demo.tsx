@@ -230,7 +230,7 @@ export function LiveDemo({
             <div className="flex shrink-0 items-center gap-2.5 border-b border-line bg-surface px-3 pb-2.5">
               <ChevronLeft className="size-6 shrink-0 text-brand-text rtl:rotate-180" aria-hidden="true" />
               <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white shadow-ix-sm ring-1 ring-line">
-                <img src="/brand/mark.webp" alt="" width={223} height={256} className="h-6 w-auto" />
+                <img src="/brand/mark.webp" alt="" width={223} height={256} loading="lazy" className="h-6 w-auto" />
               </span>
               <div className="min-w-0 flex-1">
                 <p dir="ltr" className="truncate text-start text-sm font-bold rtl:text-end">

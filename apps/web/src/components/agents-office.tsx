@@ -386,7 +386,7 @@ export function AgentsOffice({
             <div className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2" style={{ left: pct(HUB.x + 22, FLOOR.width), top: pct(HUB.y - 54, FLOOR.height), width: "7.5%" }}>
               <span className="ix-anim-pulse absolute -inset-[55%] rounded-full bg-[radial-gradient(closest-side,rgb(0_200_255/0.55),transparent)]" />
               <span className="ix-anim-pulse absolute -inset-[18%] rounded-full border border-[#00c8ff]/60 [animation-delay:0.9s]" />
-              <img src="/brand/mark.webp" alt="" width={223} height={256} className="ix-office-mark relative w-full" />
+              <img src="/brand/mark.webp" alt="" width={223} height={256} loading="lazy" className="ix-office-mark relative w-full" />
             </div>
             <button
               type="button"
@@ -397,7 +397,7 @@ export function AgentsOffice({
               style={{ left: pct(HUB.x - 52, FLOOR.width), top: pct(HUB.y + 30, FLOOR.height), height: pct(FIGURE_HEIGHT + 16, FLOOR.height) }}
             >
               {selected === "zeus" ? <span className="absolute inset-x-[-25%] bottom-[-4%] h-[14%] rounded-[50%] border-2 border-white/80" /> : null}
-              <img src="/agents/zeus.webp" alt="" width={400} height={900} className="relative h-full w-auto object-contain transition-transform duration-300 group-hover:-translate-y-1" />
+              <img src="/agents/zeus-sm.webp" alt="" width={400} height={900} loading="lazy" className="relative h-full w-auto object-contain transition-transform duration-300 group-hover:-translate-y-1" />
             </button>
             <p
               className="pointer-events-none absolute -translate-x-1/2 rounded-full border border-ink-line bg-ink/80 px-2.5 py-1 text-[0.6rem] font-bold whitespace-nowrap backdrop-blur sm:text-xs"
@@ -440,7 +440,7 @@ export function AgentsOffice({
                     >
                       {active ? <span className="absolute inset-x-[-25%] bottom-[-4%] h-[14%] rounded-[50%] border-2 border-white/80" /> : null}
                       <img
-                        src={`/agents/${spot.key}.webp`}
+                        src={`/agents/${spot.key}-sm.webp`}
                         alt=""
                         width={400}
                         height={900}

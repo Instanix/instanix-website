@@ -26,11 +26,12 @@ export function Logo({ variant = "full", tone = "auto", className, title = "Inst
     // Latin brand IP: it never mirrors in RTL.
     <span dir="ltr" className={cn("inline-flex", className)}>
       {tone === "on-ink" ? (
-        <img src="/brand/logo-white.webp" alt={title} width={891} height={220} className={image} />
+        <img src="/brand/logo-white.webp" alt={title} width={891} height={220} loading="lazy" className={image} />
       ) : (
         <>
           <img src="/brand/logo-navy.webp" alt={title} width={885} height={220} className={cn(image, "dark:hidden")} />
-          <img src="/brand/logo-white.webp" alt={title} width={891} height={220} className={cn(image, "hidden dark:block")} />
+          {/* Lazy: a hidden lazy image is not downloaded, so each theme fetches only its own logo. */}
+          <img src="/brand/logo-white.webp" alt={title} width={891} height={220} loading="lazy" className={cn(image, "hidden dark:block")} />
         </>
       )}
     </span>

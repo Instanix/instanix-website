@@ -158,7 +158,7 @@ export function TeamBuilder({
                 <li key={key} className="ix-anim-in group relative -mx-3 h-56 sm:-mx-2 sm:h-64" style={{ "--agent": entry.agent.accent } as CSSProperties}>
                   <span className="absolute inset-x-2 bottom-0 h-4 rounded-[50%] bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--agent)_70%,transparent),transparent)] blur-sm" />
                   <img
-                    src={`/agents/${key}.webp`}
+                    src={`/agents/${key}-sm.webp`}
                     alt={entry.agent.name}
                     width={400}
                     height={900}

@@ -34,7 +34,9 @@ for (const [key, file] of Object.entries(MASTERS)) {
   const { data, info } = await sharp(path.join(source, file)).trim().png().toBuffer({ resolveWithObject: true });
   const side = Math.round(Math.min(info.width, info.height * BUST_RATIO));
 
-  const full = await sharp(data).resize({ height: 900 }).webp({ quality: 84, alphaQuality: 90 }).toBuffer();
+  const full = await sharp(data).resize({ height: 900 }).webp({ quality: 76, alphaQuality: 88 }).toBuffer();
+  // A lighter figure for phones and for small placements (the home hero picks it with srcset).
+  const small = await sharp(data).resize({ height: 600 }).webp({ quality: 74, alphaQuality: 86 }).toBuffer({ resolveWithObject: true });
   const bust = await sharp(data)
     .extract({ left: Math.round((info.width - side) / 2), top: 0, width: side, height: side })
     .resize(320, 320)
@@ -43,9 +45,10 @@ for (const [key, file] of Object.entries(MASTERS)) {
 
   for (const dir of targets) {
     await sharp(full).toFile(path.join(dir, `${key}.webp`));
+    await sharp(small.data).toFile(path.join(dir, `${key}-sm.webp`));
     await sharp(bust).toFile(path.join(dir, `${key}-bust.webp`));
   }
-  console.warn(`${key}: full ${(full.length / 1024).toFixed(0)} KB, bust ${(bust.length / 1024).toFixed(0)} KB`);
+  console.warn(`${key}: full ${(full.length / 1024).toFixed(0)} KB, small ${small.info.width}w ${(small.data.length / 1024).toFixed(0)} KB, bust ${(bust.length / 1024).toFixed(0)} KB`);
 }
 
 // Founder photos for the About page (sources kept with the brand assets).

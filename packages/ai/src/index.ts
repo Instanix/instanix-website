@@ -29,3 +29,12 @@ export {
   type DemoChatScenario,
 } from "./demo-chat";
 export { officeChatInputSchema, runOfficeChat, type OfficeChatInput } from "./office-chat";
+export {
+  composeFollowUpMessage,
+  LEAD_PRIORITIES,
+  leadFollowUpSchema,
+  runLeadFollowUp,
+  type LeadFollowUp,
+  type LeadFollowUpInput,
+  type LeadFollowUpResult,
+} from "./lead-followup";

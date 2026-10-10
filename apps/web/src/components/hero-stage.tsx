@@ -166,9 +166,13 @@ export function HeroStage({ locale, t }: { readonly locale: Locale; readonly t: 
                 <span className="absolute inset-x-[-20%] bottom-[-3%] h-[12%] rounded-[50%] bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--agent)_70%,transparent),transparent)] blur-md" />
                 <img
                   src={`/agents/${key}.webp`}
+                  srcSet={`/agents/${key}-sm.webp 280w, /agents/${key}.webp 400w`}
+                  sizes="(min-width: 1024px) 270px, (min-width: 640px) 215px, 150px"
                   alt=""
                   width={400}
                   height={900}
+                  // The back row is hidden on phones; lazy loading means a phone never downloads it.
+                  loading={back ? "lazy" : "eager"}
                   decoding="async"
                   fetchPriority={key === "zeus" ? "high" : "auto"}
                   className="relative h-full w-auto max-w-none object-contain drop-shadow-[0_26px_32px_rgb(6_23_58/0.32)]"

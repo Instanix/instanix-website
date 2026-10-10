@@ -7,6 +7,7 @@ import { CalendarCheck, CircleCheck, Link2, LockKeyhole, MessageCircle, RotateCc
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { ASSESSMENT_DRAFT_KEY } from "@/lib/assessment-draft";
+import { track } from "./site-stats";
 
 type Copy = Dictionary["web"]["assessment"];
 
@@ -178,6 +179,7 @@ function ReportGate({
         }),
       });
       if (response.ok) {
+        track("lead_submitted");
         onUnlocked();
         return;
       }
@@ -315,6 +317,7 @@ export function AssessmentForm({
         return;
       }
       // Nothing to unlock when the request is out of scope or lead storage is off.
+      track("assessment_completed");
       const gated = leadsEnabled && assessment.inScope && reference !== undefined;
       setState({ status: "done", id: reference ?? null, input, assessment, unlocked: !gated });
     } catch {

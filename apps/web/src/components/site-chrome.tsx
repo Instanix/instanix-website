@@ -8,6 +8,7 @@ import { BOOKING_URL, CONTACT_EMAIL, WHATSAPP_NUMBER } from "@/lib/env";
 import { leadsEnabled } from "@/lib/server/leads";
 import { MotionRoot } from "./motion";
 import { SiteHeader, siteLinks } from "./site-header";
+import { SiteStats } from "./site-stats";
 import { ZeusLauncher } from "./zeus-launcher";
 
 export function Section({
@@ -160,6 +161,7 @@ function SiteFooter({ locale, t }: { readonly locale: Locale; readonly t: Dictio
               ...siteLinks(locale, t),
               { href: `/${locale}/solutions`, label: t.web.nav.solutions },
               { href: `/${locale}/integrations`, label: t.web.nav.integrations },
+              { href: `/${locale}/insights`, label: t.web.nav.insights },
               { href: `/${locale}/about`, label: t.web.nav.about },
               { href: `/${locale}/faq`, label: t.web.nav.faq },
               { href: `/${locale}/privacy`, label: t.web.nav.privacy },
@@ -203,6 +205,7 @@ export function SiteChrome({
   return (
     <>
       <MotionRoot />
+      <SiteStats locale={locale} />
       <SiteHeader locale={locale} t={t} path={path} />
       <main id="main" className="flex flex-col gap-20 pb-24 sm:gap-28">
         {children}

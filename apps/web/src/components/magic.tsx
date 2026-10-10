@@ -69,7 +69,7 @@ export function BeamHub({ incoming, outgoing, label }: { readonly incoming: read
       )}
       <div className="absolute top-1/2 left-1/2 grid size-20 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[28%] border border-line bg-surface shadow-ix-glow sm:size-24">
         <span className="ix-anim-pulse absolute -inset-3 rounded-[32%] border border-brand/40" />
-        <img src="/brand/mark.webp" alt="" width={223} height={256} className="h-10 w-auto sm:h-12" />
+        <img src="/brand/mark.webp" alt="" width={223} height={256} loading="lazy" className="h-10 w-auto sm:h-12" />
       </div>
     </div>
   );
