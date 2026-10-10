@@ -1,6 +1,7 @@
 import "server-only";
-import { AiError, assessmentInputSchema, createOpenAiProvider, createRateLimiter, runProjectAssessment } from "@ix/ai";
+import { AiError, assessmentInputSchema, createOpenAiProvider, runProjectAssessment } from "@ix/ai";
 import { NextResponse, type NextRequest } from "next/server";
+import { guardAi } from "@/lib/server/ai-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,22 +9,15 @@ export const dynamic = "force-dynamic";
 const MAX_BODY_BYTES = 8 * 1024;
 const TIMEOUT_MS = 45_000;
 
-// Abuse and cost controls. In-memory: see the note in @ix/ai rate-limit before a public launch.
-const perVisitor = createRateLimiter({ limit: 5, windowMs: 60 * 60 * 1000 });
-const global = createRateLimiter({ limit: 300, windowMs: 24 * 60 * 60 * 1000 });
+// Abuse and cost controls live in one place: see lib/server/ai-guard.
 
-type ErrorCode = "invalid_input" | "rate_limited" | "not_configured" | "upstream_error";
+type ErrorCode = "invalid_input" | "forbidden" | "rate_limited" | "not_configured" | "upstream_error";
 
 function fail(code: ErrorCode, status: number, correlationId: string, headers?: Record<string, string>) {
   return NextResponse.json(
     { error: { code }, correlationId },
     { status, headers: { "Cache-Control": "no-store", ...headers } },
   );
-}
-
-function clientKey(request: NextRequest): string {
-  // Set by the hosting proxy. Unknown clients share one bucket rather than bypassing the limit.
-  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 }
 
 export async function POST(request: NextRequest) {
@@ -54,14 +48,11 @@ export async function POST(request: NextRequest) {
     return fail("not_configured", 503, correlationId);
   }
 
-  const visitor = perVisitor.check(clientKey(request));
-  if (!visitor.allowed) {
-    return fail("rate_limited", 429, correlationId, { "Retry-After": String(visitor.retryAfterSeconds) });
-  }
-  const overall = global.check("all");
-  if (!overall.allowed) {
-    console.error(`[assessment ${correlationId}] daily global cap reached`);
-    return fail("rate_limited", 429, correlationId, { "Retry-After": String(overall.retryAfterSeconds) });
+  const guard = await guardAi(request, "assessment");
+  if (!guard.ok) {
+    if (guard.code === "forbidden") return fail("forbidden", 403, correlationId);
+    if (guard.code === "disabled") return fail("not_configured", 503, correlationId);
+    return fail("rate_limited", 429, correlationId, { "Retry-After": String(guard.retryAfterSeconds ?? 60) });
   }
 
   try {

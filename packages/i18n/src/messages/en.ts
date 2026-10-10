@@ -147,10 +147,11 @@ export const en = {
       scroll: "Scroll to meet the team",
       voiceStart: "Say it instead of typing",
       voiceStop: "Stop listening",
-      voiceListening: "Listening…",
+      voiceListening: "Listening… speak now, it stops when you pause",
       voiceTranscribing: "Writing what you said…",
       voiceDenied: "The microphone is blocked. Allow it in your browser, or type instead.",
       voiceError: "We could not catch that. Try again, or type instead.",
+      voiceSilent: "We could not hear you. Check that the right microphone is selected, then try again.",
     },
     connect: {
       title: "IX works with the automation and AI tools you already use.",
