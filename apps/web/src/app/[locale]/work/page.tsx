@@ -1,5 +1,6 @@
 import { buttonClass } from "@ix/ui";
 import { ArrowUpRight, CalendarDays, Check, CircleCheck, Cpu, ScanLine } from "lucide-react";
+import { FlowCanvas } from "@/components/flow-canvas";
 import { PageHero, Section, SiteChrome } from "@/components/site-chrome";
 import { loadPage, pageMetadata, type LocaleParams } from "@/lib/page";
 
@@ -164,6 +165,13 @@ export default async function WorkPage({ params }: LocaleParams) {
               </li>
             ))}
           </ol>
+        </Section>
+
+        {/* The inspection, as a workflow the visitor can run */}
+        <Section className="space-y-6">
+          <h2 className={`max-w-3xl ${heading}`}>{t.web.flow.scenarios.inspection.name}</h2>
+          <FlowCanvas copy={t.web.flow} flows={["inspection"]} />
+          <p className="px-1 text-xs text-muted">{t.web.flow.note}</p>
         </Section>
 
         {/* The person in the loop */}

@@ -823,7 +823,7 @@ export const en = {
           { label: "Interface", value: "Next.js, React and Tailwind CSS" },
           { label: "Server", value: "Python and FastAPI" },
           { label: "Data", value: "PostgreSQL and Redis" },
-          { label: "AI", value: "OpenAI models, a different one for each stage" },
+          { label: "AI", value: "A different language model for each stage" },
           { label: "Reports", value: "PDF generated automatically, with a verification code on every report" },
           { label: "Diagnostic devices", value: "Fault codes and their status extracted from Autel report files" },
         ],

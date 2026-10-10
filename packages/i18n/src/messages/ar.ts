@@ -825,7 +825,7 @@ export const ar: Dictionary = {
           { label: "الواجهة", value: "Next.js و React و Tailwind CSS" },
           { label: "الخادم", value: "Python و FastAPI" },
           { label: "البيانات", value: "PostgreSQL و Redis" },
-          { label: "الذكاء الاصطناعي", value: "نماذج OpenAI، نموذج مختلف لكل مرحلة" },
+          { label: "الذكاء الاصطناعي", value: "نموذج لغوي مختلف لكل مرحلة" },
           { label: "التقارير", value: "ملف PDF يُولَّد آليًا، مع رمز تحقق لكل تقرير" },
           { label: "أجهزة الأعطال", value: "استخراج الأكواد وحالتها من ملفات تقارير Autel" },
         ],
